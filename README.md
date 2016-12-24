@@ -66,38 +66,41 @@ MATLABDiffEq.show_msession()
 Generally, for long enough problems the overhead is minimal. Example:
 
 ```julia
+using DiffEqBase, ParameterizedFunctions, MATLABDiffEq
 f = @ode_def_bare RigidBodyBench begin
   dy1  = I1*y2*y3
   dy2  = I2*y1*y3
   dy3  = I3*y1*y2 + 0.25*sin(t)^2
 end I1=-2 I2=1.25 I3=-.5
 prob = ODEProblem(f,[1.0;0.0;0.9],(0.0,300.0))
+alg = MATLABDiffEq.ode45()
+algstr = string(typeof(alg).name.name)
 ```
 
 For this, we get the following:
 
 ```julia
-julia> @time sol = solve(prob,MATLABDiffEq.ode45());
-  0.467800 seconds (329.98 k allocations: 12.903 MB)
+julia> @time sol = solve(prob,alg);
+  0.462923 seconds (329.98 k allocations: 12.903 MB, 1.31% gc time)
 
-julia> @time sol = solve(prob,MATLABDiffEq.ode45());
-  0.469933 seconds (329.98 k allocations: 12.903 MB, 1.06% gc time)
+julia> @time sol = solve(prob,alg);
+  0.460244 seconds (329.98 k allocations: 12.903 MB)
 
-julia> @time sol = solve(prob,MATLABDiffEq.ode45());
-  0.468583 seconds (329.98 k allocations: 12.903 MB)
+julia> @time sol = solve(prob,alg);
+  0.461863 seconds (329.98 k allocations: 12.903 MB, 1.08% gc time)
 
-julia> @time sol = solve(prob,MATLABDiffEq.ode45());
-  0.475089 seconds (329.98 k allocations: 12.903 MB, 0.99% gc time)
-
-julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
-  0.451407 seconds (11 allocations: 528 bytes)
+julia> @time sol = solve(prob,alg);
+  0.462844 seconds (329.98 k allocations: 12.903 MB)
 
 julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
-  0.452138 seconds (11 allocations: 528 bytes)
+  0.447218 seconds (33 allocations: 1.953 KB)
 
 julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
-  0.445815 seconds (11 allocations: 528 bytes)
+  0.447357 seconds (11 allocations: 528 bytes)
 
 julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
-  0.456558 seconds (11 allocations: 528 bytes)
+  0.451301 seconds (11 allocations: 528 bytes)
+
+julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
+  0.446024 seconds (11 allocations: 528 bytes)
 ```
