@@ -14,7 +14,7 @@ Note that this package isn't for production use and is mostly just for benchmark
 To install MATLABDiffEq.jl, use the following:
 
 ```julia
-Pkg.clone("")
+Pkg.clone("https://github.com/JuliaDiffEq/MATLABDiffEq.jl")
 ```
 
 ## Using MATLABDiffEq.jl
