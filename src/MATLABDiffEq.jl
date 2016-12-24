@@ -75,7 +75,7 @@ function solve{uType,tType,isinplace,AlgType<:MATLABAlgorithm,F}(
     # Reshape the result if needed
     if uType <: AbstractArray
         timeseries = Vector{uType}(0)
-        for i=1:length(t)
+        for i=1:length(ts)
             push!(timeseries,timeseries_tmp[i,:])
         end
     else
