@@ -130,7 +130,7 @@ wp = ode_workprecision_set(prob,abstols,reltols,setups;appxsol=test_sol,dense=fa
 plot(wp)
 ```
 
-![Benchmark](assets/matlab_bench.png)
+<center>![Benchmark](assets/matlab_bench.png)</center>
 
 This shows that being able to run MATLAB algorithms with MATLAB functions
 is cute, but does not really have a practical use due to MATLAB lack of
