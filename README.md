@@ -72,7 +72,7 @@ f = @ode_def_bare RigidBodyBench begin
   dy2  = I2*y1*y3
   dy3  = I3*y1*y2 + 0.25*sin(t)^2
 end I1=-2 I2=1.25 I3=-.5
-prob = ODEProblem(f,[1.0;0.0;0.9],(0.0,300.0))
+prob = ODEProblem(f,[1.0;0.0;0.9],(0.0,100.0))
 alg = MATLABDiffEq.ode45()
 algstr = string(typeof(alg).name.name)
 ```
@@ -81,26 +81,57 @@ For this, we get the following:
 
 ```julia
 julia> @time sol = solve(prob,alg);
-  0.462923 seconds (329.98 k allocations: 12.903 MB, 1.31% gc time)
+  0.063918 seconds (38.84 k allocations: 1.556 MB)
 
 julia> @time sol = solve(prob,alg);
-  0.460244 seconds (329.98 k allocations: 12.903 MB)
+  0.062600 seconds (38.84 k allocations: 1.556 MB)
 
 julia> @time sol = solve(prob,alg);
-  0.461863 seconds (329.98 k allocations: 12.903 MB, 1.08% gc time)
+  0.061438 seconds (38.84 k allocations: 1.556 MB)
 
 julia> @time sol = solve(prob,alg);
-  0.462844 seconds (329.98 k allocations: 12.903 MB)
+  0.065460 seconds (38.84 k allocations: 1.556 MB)
 
 julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
-  0.447218 seconds (33 allocations: 1.953 KB)
+  0.058249 seconds (11 allocations: 528 bytes)
 
 julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
-  0.447357 seconds (11 allocations: 528 bytes)
+  0.060367 seconds (11 allocations: 528 bytes)
 
 julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
-  0.451301 seconds (11 allocations: 528 bytes)
+  0.060171 seconds (11 allocations: 528 bytes)
 
 julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
-  0.446024 seconds (11 allocations: 528 bytes)
+  0.058928 seconds (11 allocations: 528 bytes)
 ```
+
+## Benchmark
+
+MATLABDiffEq.jl will be included into [DiffEqBenchmarks.jl](https://github.com/JuliaDiffEq/DiffEqBenchmarks.jl). However, the benchmarks are not encouraging to MATLAB at all.  Instead, they show that the cost of evaluating functions in MATLAB are too large (note that the functions are re-defined in MATLAB, meaning that they are true MATLAB functions and not interop functions).
+
+Running bechmarks at various tolerance using the same problem as before, we get the following:
+
+```julia
+using OrdinaryDiffEq, ODEInterfaceDiffEq, Plots, ODE
+abstols = 1./10.^(6:13)
+reltols = 1./10.^(3:10)
+sol = solve(prob,Vern7(),abstol=1/10^14,reltol=1/10^14)
+test_sol = TestSolution(sol)
+plotly()
+setups = [Dict(:alg=>DP5())
+          #Dict(:alg=>ode45())
+          Dict(:alg=>dopri5())
+          Dict(:alg=>BS5())
+          Dict(:alg=>Tsit5())
+          Dict(:alg=>Vern6())
+          Dict(:alg=>MATLABDiffEq.ode45())
+]
+wp = ode_workprecision_set(prob,abstols,reltols,setups;appxsol=test_sol,dense=false,save_timeseries=false,numruns=100,maxiters=10000000)
+plot(wp)
+```
+
+![Benchmark](matlab_bench.png)
+
+This shows that being able to run MATLAB algorithms with MATLAB functions
+is cute, but does not really have a practical use due to MATLAB lack of
+performance.
