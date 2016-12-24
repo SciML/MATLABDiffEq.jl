@@ -2,7 +2,7 @@ using DiffEqBase, MATLABDiffEq, ParameterizedFunctions
 using Base.Test
 
 
-f = @ode_def LotkaVolterra begin
+f = @ode_def_bare LotkaVolterra begin
   dx = a*x - b*x*y
   dy = -c*y + d*x*y
 end a=1.5 b=1 c=3 d=1
@@ -17,8 +17,7 @@ MATLABDiffEq.ode113
 MATLABDiffEq.ode23s
 MATLABDiffEq.ode23t
 MATLABDiffEq.ode23tb
-MATLABDiffEq.ode15s
-MATLABDiffEq.ode15i]
+MATLABDiffEq.ode15s]
 
 for alg in algs
   sol = solve(prob,alg())
