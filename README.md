@@ -132,6 +132,6 @@ plot(wp)
 
 ![Benchmark](assets/matlab_bench.png)
 
-This shows that being able to run MATLAB algorithms with MATLAB functions
-is cute, but does not really have a practical use due to MATLAB lack of
+This shows that being able to run MATLAB ODE algorithms with MATLAB functions
+is cute, but does not really have a practical use due to MATLAB's lack of
 performance.
