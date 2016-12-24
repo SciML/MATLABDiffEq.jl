@@ -42,3 +42,62 @@ u0 = [1.0,1.0]
 prob = ODEProblem(f,u0,tspan)
 sol = solve(prob,MATLABDiffEq.ode45())
 ```
+
+## Measuring Overhead
+
+To measure the overhead of over the wrapper, note that the variables
+from the session will be still stored in MATLAB after the computation
+is done. Thus you can simply call the same ODE function and time it
+directly. This is done by:
+
+```julia
+@time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
+```
+
+To be even more pedantic, you can play around in the actual MATLAB
+session by using
+
+```
+MATLABDiffEq.show_msession()
+```
+
+## Overhead Amount
+
+Generally, for long enough problems the overhead is minimal. Example:
+
+```julia
+f = @ode_def_bare RigidBodyBench begin
+  dy1  = I1*y2*y3
+  dy2  = I2*y1*y3
+  dy3  = I3*y1*y2 + 0.25*sin(t)^2
+end I1=-2 I2=1.25 I3=-.5
+prob = ODEProblem(f,[1.0;0.0;0.9],(0.0,300.0))
+```
+
+For this, we get the following:
+
+```julia
+julia> @time sol = solve(prob,MATLABDiffEq.ode45());
+  0.467800 seconds (329.98 k allocations: 12.903 MB)
+
+julia> @time sol = solve(prob,MATLABDiffEq.ode45());
+  0.469933 seconds (329.98 k allocations: 12.903 MB, 1.06% gc time)
+
+julia> @time sol = solve(prob,MATLABDiffEq.ode45());
+  0.468583 seconds (329.98 k allocations: 12.903 MB)
+
+julia> @time sol = solve(prob,MATLABDiffEq.ode45());
+  0.475089 seconds (329.98 k allocations: 12.903 MB, 0.99% gc time)
+
+julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
+  0.451407 seconds (11 allocations: 528 bytes)
+
+julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
+  0.452138 seconds (11 allocations: 528 bytes)
+
+julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
+  0.445815 seconds (11 allocations: 528 bytes)
+
+julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
+  0.456558 seconds (11 allocations: 528 bytes)
+```

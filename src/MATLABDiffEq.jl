@@ -33,14 +33,6 @@ function solve{uType,tType,isinplace,AlgType<:MATLABAlgorithm,F}(
 
     sizeu = size(prob.u0)
 
-    if isinplace && !(uType <: AbstractVector)
-        f = (t,u,du) -> (du = zeros(u); prob.f(t,u,du); vec(du))
-    elseif !isinplace && !(uType <: AbstractVector)
-        f = (t,u) -> vec(prob.f(t,reshape(u,sizeu)))
-    else
-        f = prob.f
-    end
-
     if uType <: AbstractArray
         u0 = vec(prob.u0)
     else
@@ -73,7 +65,7 @@ function solve{uType,tType,isinplace,AlgType<:MATLABAlgorithm,F}(
     timeseries_tmp = jarray(get_mvariable(:u))
 
     ts = [t[i] for i in eachindex(t)] # convert to Vector
-    
+
     # Reshape the result if needed
     if uType <: AbstractArray
         timeseries = Vector{uType}(0)
