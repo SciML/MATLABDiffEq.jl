@@ -61,7 +61,7 @@ function solve{uType,tType,isinplace,AlgType<:MATLABAlgorithm,F}(
     algstr = string(typeof(alg).name.name)
     #algstr = replace(string(typeof(alg)),"MATLABDiffEq.","")
     eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
-    t = jvector(get_mvariable(:t))
+    ts = jvector(get_mvariable(:t))
     timeseries_tmp = jarray(get_mvariable(:u))
 
     # Reshape the result if needed
