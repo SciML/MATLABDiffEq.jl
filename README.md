@@ -134,4 +134,4 @@ plot(wp)
 
 This shows that being able to run MATLAB ODE algorithms with MATLAB functions
 is cute, but does not really have a practical use due to MATLAB's lack of
-performance.
+performance (and its [pass by copy](https://www.mathworks.com/matlabcentral/answers/152-can-matlab-pass-by-reference) for functions).
