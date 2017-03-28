@@ -26,7 +26,8 @@ function solve{uType,tType,isinplace,AlgType<:MATLABAlgorithm,F}(
     if prob.tspan[end]-prob.tspan[1]<tType(0)
         error("final time must be greater than starting time. Aborting.")
     end
-
+    
+    f = prob.f
     u0 = prob.u0
 
     tspan = sort(unique([prob.tspan[1];saveat;prob.tspan[2]]))
