@@ -19,7 +19,7 @@ function solve{uType,tType,isinplace,AlgType<:MATLABAlgorithm,F}(
     saveat=tType[],timeseries_errors=true,reltol = 1e-3, abstol = 1e-6,
     kwargs...)
 
-    if !(typeof(prob.f) <: ParameterizedFunction)
+    if !(typeof(prob.f) <: AbstractParameterizedFunction)
       error("Functions must be defined via ParameterizedFunctions.jl to work with this package.")
     end
 
