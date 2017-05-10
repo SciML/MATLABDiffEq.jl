@@ -1,6 +1,18 @@
 # MATLABDiffEq.jl
 
+[![Join the chat at https://gitter.im/JuliaDiffEq/Lobby](https://badges.gitter.im/JuliaDiffEq/Lobby.svg)](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+[![Build Status](https://travis-ci.org/JuliaDiffEq/MATLABDiffEq.jl.svg?branch=master)](https://travis-ci.org/JuliaDiffEq/MATLABDiffEq.jl)
+
+[![Coverage Status](https://coveralls.io/repos/github/JuliaDiffEq/MATLABDiffEq.jl/badge.svg)](https://coveralls.io/github/JuliaDiffEq/MATLABDiffEq.jl)
+[![codecov.io](http://codecov.io/github/ChrisRackauckas/MATLABDiffEq.jl/coverage.svg?branch=master)](http://codecov.io/github/ChrisRackauckas/MATLABDiffEq.jl?branch=master)
+
+# Uncomment the next two lines if this package is registered
+#[![MATLABDiffEq](http://pkg.julialang.org/badges/MATLABDiffEq_0.5.svg)](http://pkg.julialang.org/?pkg=MATLABDiffEq)
+#[![MATLABDiffEq](http://pkg.julialang.org/badges/MATLABDiffEq_0.6.svg)](http://pkg.julialang.org/?pkg=MATLABDiffEq)
+
 MATLABDiffEq.jl is a common interface binding for the [MATLAB](https://www.mathworks.com/products/matlab.html)
+
 ordinary differential equation solvers. It uses the [MATLAB.jl](https://github.com/JuliaInterop/MATLAB.jl) interop in order to
 send the differential equation over to MATLAB and solve it. Note that this
 package requires the differential equation function to be defined using
