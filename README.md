@@ -117,24 +117,25 @@ julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
 
 MATLABDiffEq.jl will be included into [DiffEqBenchmarks.jl](https://github.com/JuliaDiffEq/DiffEqBenchmarks.jl). However, the benchmarks are not encouraging to MATLAB at all.  Instead, they show that the cost of evaluating functions in MATLAB are too large (note that the functions are re-defined in MATLAB, meaning that they are true MATLAB functions and not interop functions).
 
-Running bechmarks at various tolerance using the same problem as before, we get the following:
+Running benchmarks at various tolerance using the same Lotka-Volterra problem from before, we get the following:
 
 ```julia
 using OrdinaryDiffEq, ODEInterfaceDiffEq, Plots, ODE
+using DiffEqDevTools
 abstols = 1./10.^(6:13)
 reltols = 1./10.^(3:10)
 sol = solve(prob,Vern7(),abstol=1/10^14,reltol=1/10^14)
 test_sol = TestSolution(sol)
 plotly()
 setups = [Dict(:alg=>DP5())
-          #Dict(:alg=>ode45())
           Dict(:alg=>dopri5())
           Dict(:alg=>BS5())
           Dict(:alg=>Tsit5())
           Dict(:alg=>Vern6())
+          Dict(:alg=>Vern7())
           Dict(:alg=>MATLABDiffEq.ode45())
-]
-wp = ode_workprecision_set(prob,abstols,reltols,setups;appxsol=test_sol,dense=false,save_timeseries=false,numruns=100,maxiters=10000000)
+  ]
+wp = ode_workprecision_set(prob,abstols,reltols,setups;appxsol=test_sol,dense=false,save_everystep=false,numruns=1000,maxiters=10000000,ttimeseries_errors=false,verbose=false)
 plot(wp)
 ```
 

@@ -15,8 +15,8 @@ immutable ode23tb <: MATLABAlgorithm end
 immutable ode15s <: MATLABAlgorithm end
 immutable ode15i <: MATLABAlgorithm end
 
-function solve{uType,tType,isinplace,AlgType<:MATLABAlgorithm,F}(
-    prob::AbstractODEProblem{uType,tType,isinplace,F},
+function solve{uType,tType,isinplace,AlgType<:MATLABAlgorithm}(
+    prob::AbstractODEProblem{uType,tType,isinplace},
     alg::AlgType,timeseries=[],ts=[],ks=[];
     saveat=tType[],timeseries_errors=true,reltol = 1e-3, abstol = 1e-6,
     kwargs...)
@@ -28,7 +28,7 @@ function solve{uType,tType,isinplace,AlgType<:MATLABAlgorithm,F}(
     if prob.tspan[end]-prob.tspan[1]<tType(0)
         error("final time must be greater than starting time. Aborting.")
     end
-    
+
     f = prob.f
     u0 = prob.u0
 
