@@ -2,7 +2,9 @@ __precompile__()
 
 module MATLABDiffEq
 
-using DiffEqBase, MATLAB
+using Reexport
+@reexport using DiffEqBaseQ
+using MATLAB
 import DiffEqBase: solve
 
 abstract MATLABAlgorithm <: AbstractODEAlgorithm
