@@ -3,7 +3,7 @@ __precompile__()
 module MATLABDiffEq
 
 using Reexport
-@reexport using DiffEqBaseQ
+@reexport using DiffEqBase
 using MATLAB
 import DiffEqBase: solve
 
