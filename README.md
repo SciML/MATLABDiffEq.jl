@@ -128,7 +128,7 @@ setups = [Dict(:alg=>DP5())
           Dict(:alg=>Vern7())
           Dict(:alg=>MATLABDiffEq.ode45())
   ]
-wp = WorkPrecision(prob,abstols,reltols,setups;appxsol=test_sol,dense=false,save_everystep=false,numruns=1000,maxiters=10000000,ttimeseries_errors=false,verbose=false)
+wp = WorkPrecisionSet(prob,abstols,reltols,setups;appxsol=test_sol,dense=false,save_everystep=false,numruns=1000,maxiters=10000000,ttimeseries_errors=false,verbose=false)
 plot(wp)
 ```
 
