@@ -52,7 +52,7 @@ function solve{uType,tType,isinplace,AlgType<:MATLABAlgorithm}(
     end
     matstr = replace(matstr,"[","(")
     matstr = replace(matstr,"]",")")
-    matstr = "f = @(t,u) ["*matstr*"];"
+    matstr = "f = @(t,internal_var___u) ["*matstr*"];"
 
     # Send the function over
     eval_string(matstr)
