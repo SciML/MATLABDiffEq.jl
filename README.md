@@ -34,9 +34,9 @@ using DiffEqBase, MATLABDiffEq, ParameterizedFunctions
 
 
 f = @ode_def LotkaVolterra begin
-  dx = a*x - b*x*y
-  dy = -c*y + d*x*y
-end a=1.5 b=1 c=3 d=1
+  dx = 1.5x - x*y
+  dy = -3y + x*y
+end
 
 tspan = (0.0,10.0)
 u0 = [1.0,1.0]
@@ -69,10 +69,10 @@ Generally, for long enough problems the overhead is minimal. Example:
 ```julia
 using DiffEqBase, ParameterizedFunctions, MATLABDiffEq
 f = @ode_def_bare RigidBodyBench begin
-  dy1  = I1*y2*y3
-  dy2  = I2*y1*y3
-  dy3  = I3*y1*y2 + 0.25*sin(t)^2
-end I1=-2 I2=1.25 I3=-.5
+  dy1  = -2*y2*y3
+  dy2  = 1.25*y1*y3
+  dy3  = -0.5*y1*y2 + 0.25*sin(t)^2
+end
 prob = ODEProblem(f,[1.0;0.0;0.9],(0.0,100.0))
 alg = MATLABDiffEq.ode45()
 algstr = string(typeof(alg).name.name)
