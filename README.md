@@ -20,10 +20,11 @@ Pkg.clone("https://github.com/JuliaDiffEq/MATLABDiffEq.jl")
 
 ## Using MATLABDiffEq.jl
 
-MATLABDiffEq.jl is simply a solver on the DiffEq common interface, so for details see the [DifferentialEquations.jl documentation](https://juliadiffeq.github.io/DiffEqDocs.jl/latest/). However, there are two things to know:
+MATLABDiffEq.jl is simply a solver on the DiffEq common interface, so for details see the [DifferentialEquations.jl documentation](https://juliadiffeq.github.io/DiffEqDocs.jl/latest/). However, there are three things to know:
 
 1. The only options implemented are those for error calculations (`timeseries_error`), `saveat` and tolerances.
 2. The input function must be defined by a `ParameterizedFunction`
+3. The input function must not use parameters
 
 Note that the algorithms are defined to have the same name as the MATLAB algorithms, but are not exported. Thus to use `ode45`, you would specify the algorithm as `MATLABDiffEq.ode45()`.
 
