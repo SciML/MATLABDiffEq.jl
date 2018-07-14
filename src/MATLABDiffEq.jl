@@ -5,9 +5,8 @@ module MATLABDiffEq
 using Reexport
 @reexport using DiffEqBase
 using MATLAB
-import DiffEqBase: solve
 
-abstract MATLABAlgorithm <: AbstractODEAlgorithm
+abstract MATLABAlgorithm <: DiffEqBase.AbstractODEAlgorithm
 immutable ode23 <: MATLABAlgorithm end
 immutable ode45 <: MATLABAlgorithm end
 immutable ode113 <: MATLABAlgorithm end
@@ -17,13 +16,15 @@ immutable ode23tb <: MATLABAlgorithm end
 immutable ode15s <: MATLABAlgorithm end
 immutable ode15i <: MATLABAlgorithm end
 
-function solve{uType,tType,isinplace,AlgType<:MATLABAlgorithm}(
-    prob::AbstractODEProblem{uType,tType,isinplace},
+function DiffEqBase.__solve{uType,tupType,isinplace,AlgType<:MATLABAlgorithm}(
+    prob::DiffEqBase.AbstractODEProblem{uType,tupType,isinplace},
     alg::AlgType,timeseries=[],ts=[],ks=[];
-    saveat=tType[],timeseries_errors=true,reltol = 1e-3, abstol = 1e-6,
+    saveat=eltype(tType)[],timeseries_errors=true,reltol = 1e-3, abstol = 1e-6,
     kwargs...)
+    
+    tType = eltype(tupType)
 
-    if !(typeof(prob.f) <: AbstractParameterizedFunction)
+    if !(typeof(prob.f) <: DiffEqBase.AbstractParameterizedFunction)
       error("Functions must be defined via ParameterizedFunctions.jl to work with this package.")
     end
 
@@ -79,7 +80,7 @@ function solve{uType,tType,isinplace,AlgType<:MATLABAlgorithm}(
         timeseries = timeseries_tmp
     end
 
-    build_solution(prob,alg,ts,timeseries,
+    DiffEqBase.build_solution(prob,alg,ts,timeseries,
                  timeseries_errors = timeseries_errors)
 end
 
