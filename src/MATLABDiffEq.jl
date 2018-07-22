@@ -6,22 +6,22 @@ using Reexport
 @reexport using DiffEqBase
 using MATLAB
 
-abstract MATLABAlgorithm <: DiffEqBase.AbstractODEAlgorithm
-immutable ode23 <: MATLABAlgorithm end
-immutable ode45 <: MATLABAlgorithm end
-immutable ode113 <: MATLABAlgorithm end
-immutable ode23s <: MATLABAlgorithm end
-immutable ode23t <: MATLABAlgorithm end
-immutable ode23tb <: MATLABAlgorithm end
-immutable ode15s <: MATLABAlgorithm end
-immutable ode15i <: MATLABAlgorithm end
+abstract type MATLABAlgorithm <: DiffEqBase.AbstractODEAlgorithm end
+struct ode23 <: MATLABAlgorithm end
+struct ode45 <: MATLABAlgorithm end
+struct ode113 <: MATLABAlgorithm end
+struct ode23s <: MATLABAlgorithm end
+struct ode23t <: MATLABAlgorithm end
+struct ode23tb <: MATLABAlgorithm end
+struct ode15s <: MATLABAlgorithm end
+struct ode15i <: MATLABAlgorithm end
 
 function DiffEqBase.__solve{uType,tupType,isinplace,AlgType<:MATLABAlgorithm}(
     prob::DiffEqBase.AbstractODEProblem{uType,tupType,isinplace},
     alg::AlgType,timeseries=[],ts=[],ks=[];
-    saveat=eltype(tType)[],timeseries_errors=true,reltol = 1e-3, abstol = 1e-6,
+    saveat=eltype(tupType)[],timeseries_errors=true,reltol = 1e-3, abstol = 1e-6,
     kwargs...)
-    
+
     tType = eltype(tupType)
 
     if !(typeof(prob.f) <: DiffEqBase.AbstractParameterizedFunction)
@@ -72,9 +72,9 @@ function DiffEqBase.__solve{uType,tupType,isinplace,AlgType<:MATLABAlgorithm}(
 
     # Reshape the result if needed
     if uType <: AbstractArray
-        timeseries = Vector{uType}(0)
+        timeseries = Vector{uType}(undef,length(ts))
         for i=1:length(ts)
-            push!(timeseries,timeseries_tmp[i,:])
+            timeseries[i] = timeseries_tmp[i,:]
         end
     else
         timeseries = timeseries_tmp

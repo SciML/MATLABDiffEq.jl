@@ -1,6 +1,4 @@
-using DiffEqBase, MATLABDiffEq, ParameterizedFunctions
-using Base.Test
-
+using DiffEqBase, MATLABDiffEq, ParameterizedFunctions, Test
 
 f = @ode_def_bare LotkaVolterra begin
   dx = a*x - b*x*y
