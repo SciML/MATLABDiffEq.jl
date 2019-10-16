@@ -3,11 +3,11 @@ using DiffEqBase, MATLABDiffEq, ParameterizedFunctions, Test
 f = @ode_def_bare LotkaVolterra begin
   dx = a*x - b*x*y
   dy = -c*y + d*x*y
-end a=1.5 b=1 c=3 d=1
-
+end a b c d
+p = (1.5,1,3,1)
 tspan = (0.0,10.0)
 u0 = [1.0,1.0]
-prob = ODEProblem(f,u0,tspan)
+prob = ODEProblem(f,u0,tspan,p)
 
 algs = [MATLABDiffEq.ode23
 MATLABDiffEq.ode45

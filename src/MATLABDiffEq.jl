@@ -1,5 +1,3 @@
-__precompile__()
-
 module MATLABDiffEq
 
 using Reexport
@@ -16,11 +14,11 @@ struct ode23tb <: MATLABAlgorithm end
 struct ode15s <: MATLABAlgorithm end
 struct ode15i <: MATLABAlgorithm end
 
-function DiffEqBase.__solve{uType,tupType,isinplace,AlgType<:MATLABAlgorithm}(
+function DiffEqBase.__solve(
     prob::DiffEqBase.AbstractODEProblem{uType,tupType,isinplace},
     alg::AlgType,timeseries=[],ts=[],ks=[];
     saveat=eltype(tupType)[],timeseries_errors=true,reltol = 1e-3, abstol = 1e-6,
-    kwargs...)
+    kwargs...) where {uType,tupType,isinplace,AlgType<:MATLABAlgorithm}
 
     tType = eltype(tupType)
 
