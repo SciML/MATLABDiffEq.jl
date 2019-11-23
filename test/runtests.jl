@@ -22,6 +22,3 @@ algs = [MATLABDiffEq.ode23
 for alg in algs
   sol = solve(prob,alg())
 end
-
-using Plots
-plot(sol)
