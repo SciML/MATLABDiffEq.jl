@@ -145,7 +145,9 @@ setups = [Dict(:alg=>DP5())
   ]
 abstols = 1.0 ./ 10.0 .^ (6:13)
 reltols = 1.0 ./ 10.0 .^ (3:10)
-wp = WorkPrecisionSet(prob,abstols,reltols,setups;appxsol=test_sol,dense=false,save_everystep=false,numruns=100,maxiters=10000000,ttimeseries_errors=false,verbose=false)
+wp = WorkPrecisionSet(prob,abstols,reltols,setups;appxsol=test_sol,dense=false,
+                      save_everystep=false,numruns=100,maxiters=10000000,
+                      timeseries_errors=false,verbose=false)
 plot(wp,title="Non-stiff 1: Lotka-Volterra")
 savefig("benchmark1.png")
 ```
@@ -176,7 +178,9 @@ setups = [Dict(:alg=>DP5())
   ]
 abstols = 1.0 ./ 10.0 .^ (6:13)
 reltols = 1.0 ./ 10.0 .^ (3:10)
-wp = WorkPrecisionSet(prob,abstols,reltols,setups;appxsol=test_sol,dense=false,save_everystep=false,numruns=100,maxiters=10000000,ttimeseries_errors=false,verbose=false)
+wp = WorkPrecisionSet(prob,abstols,reltols,setups;appxsol=test_sol,dense=false,
+                      save_everystep=false,numruns=100,maxiters=10000000,
+                      timeseries_errors=false,verbose=false)
 plot(wp,title="Non-stiff 2: Rigid-Body")
 savefig("benchmark2.png")
 ```
