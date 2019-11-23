@@ -259,6 +259,8 @@ savefig("benchmark4.png")
 ![benchmark4](https://user-images.githubusercontent.com/1814174/69478409-019a6900-0dc0-11ea-9fce-c11a5e4de9a4.png)
 
 
+Together this demonstrates that the algorithms like `ode45` and `ode15s` are
+not competitive performance-wise against the Fortran and Julia methods.
 This shows that being able to run MATLAB ODE algorithms with MATLAB functions
 is cute, but does not really have a practical use due to MATLAB's lack of
 performance (and its [pass by copy](https://www.mathworks.com/matlabcentral/answers/152-can-matlab-pass-by-reference) for functions).
