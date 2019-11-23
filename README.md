@@ -112,8 +112,8 @@ julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
 
 The following benchmarks demonstrate a **100x performance advantage for the
 pure-Julia methods over the MATLAB ODE solvers** across a range of stiff and
-non-stiff ODEs. These were ran with Julia 1.2 and MATLAB 2019B after verifying
-negligible overhead on interop.
+non-stiff ODEs. These were ran with Julia 1.2, MATLAB 2019B, deSolve 1.2.5,
+and SciPy 1.3.1 after verifying negligible overhead on interop.
 
 ```julia
 using ParameterizedFunctions, MATLABDiffEq, OrdinaryDiffEq, ODEInterface,
