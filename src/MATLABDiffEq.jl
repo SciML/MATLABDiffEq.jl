@@ -74,7 +74,7 @@ function DiffEqBase.__solve(
     if uType <: AbstractArray
         timeseries = Vector{uType}(undef,length(ts))
         for i=1:length(ts)
-            timeseries[i] = timeseries_tmp[i,:]
+            timeseries[i] = @view timeseries_tmp[i,:]
         end
     else
         timeseries = timeseries_tmp
