@@ -32,7 +32,7 @@ Note that the algorithms are defined to have the same name as the MATLAB algorit
 ## Example
 
 ```julia
-using DiffEqBase, MATLABDiffEq, ParameterizedFunctions
+using MATLABDiffEq, ParameterizedFunctions
 
 
 f = @ode_def LotkaVolterra begin
