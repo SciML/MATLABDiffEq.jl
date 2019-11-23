@@ -49,17 +49,19 @@ function DiffEqBase.__solve(
       matstr *= strs[i]
       i < length(strs) && (matstr *= "; ")
     end
-    matstr = replace(matstr,"[","(")
-    matstr = replace(matstr,"]",")")
+    matstr = replace(matstr,"["=>"(")
+    matstr = replace(matstr,"]"=>")")
     matstr = "f = @(t,internal_var___u) ["*matstr*"];"
 
-    # Send the function over
-    eval_string(matstr)
     # Send the variables
     put_variable(get_default_msession(),:tspan,tspan)
     put_variable(get_default_msession(),:u0,u0)
+    put_variable(get_default_msession(),:internal_var___p,prob.p)
     put_variable(get_default_msession(),:reltol,reltol)
     put_variable(get_default_msession(),:abstol,abstol)
+
+    # Send the function over
+    eval_string(matstr)
 
     eval_string("options = odeset('RelTol',reltol,'AbsTol',abstol);")
     algstr = string(typeof(alg).name.name)
