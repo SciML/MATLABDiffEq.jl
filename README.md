@@ -23,19 +23,18 @@ Pkg.add("MATLABDiffEq")
 
 ## Using MATLABDiffEq.jl
 
-MATLABDiffEq.jl is simply a solver on the DiffEq common interface, so for details see the [DifferentialEquations.jl documentation](https://juliadiffeq.github.io/DiffEqDocs.jl/dev/). However, there are three things to know:
+MATLABDiffEq.jl is simply a solver on the DiffEq common interface, so for details see the [DifferentialEquations.jl documentation](https://juliadiffeq.github.io/DiffEqDocs.jl/dev/).
+However, the only options implemented are those for error calculations
+(`timeseries_error`), `saveat` and tolerances.
 
-1. The only options implemented are those for error calculations (`timeseries_error`), `saveat` and tolerances.
-2. The input function must be defined by a `ParameterizedFunction`
-3. The input function must not use parameters
-
-Note that the algorithms are defined to have the same name as the MATLAB algorithms, but are not exported. Thus to use `ode45`, you would specify the algorithm as `MATLABDiffEq.ode45()`.
+Note that the algorithms are defined to have the same name as the MATLAB algorithms,
+but are not exported. Thus to use `ode45`, you would specify the algorithm as
+`MATLABDiffEq.ode45()`.
 
 ## Example
 
 ```julia
 using MATLABDiffEq, ParameterizedFunctions
-
 
 f = @ode_def LotkaVolterra begin
   dx = 1.5x - x*y
@@ -45,6 +44,16 @@ end
 tspan = (0.0,10.0)
 u0 = [1.0,1.0]
 prob = ODEProblem(f,u0,tspan)
+sol = solve(prob,MATLABDiffEq.ode45())
+
+function lorenz(du,u,p,t)
+   du[1] = 10.0(u[2]-u[1])
+   du[2] = u[1]*(28.0-u[3]) - u[2]
+   du[3] = u[1]*u[2] - (8/3)*u[3]
+end
+u0 = [1.0;0.0;0.0]
+tspan = (0.0,100.0)
+prob = ODEProblem(lorenz,u0,tspan)
 sol = solve(prob,MATLABDiffEq.ode45())
 ```
 
@@ -56,7 +65,7 @@ is done. Thus you can simply call the same ODE function and time it
 directly. This is done by:
 
 ```julia
-@time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
+@time MATLABDiffEq.eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
 ```
 
 To be even more pedantic, you can play around in the actual MATLAB
@@ -97,16 +106,16 @@ julia> @time sol = solve(prob,alg);
 julia> @time sol = solve(prob,alg);
   0.065460 seconds (38.84 k allocations: 1.556 MB)
 
-julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
+julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
   0.058249 seconds (11 allocations: 528 bytes)
 
-julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
+julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
   0.060367 seconds (11 allocations: 528 bytes)
 
-julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
+julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
   0.060171 seconds (11 allocations: 528 bytes)
 
-julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
+julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
   0.058928 seconds (11 allocations: 528 bytes)
 ```
 

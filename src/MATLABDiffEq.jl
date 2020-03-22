@@ -2,7 +2,7 @@ module MATLABDiffEq
 
 using Reexport
 @reexport using DiffEqBase
-using MATLAB
+using MATLAB, ModelingToolkit
 
 abstract type MATLABAlgorithm <: DiffEqBase.AbstractODEAlgorithm end
 struct ode23 <: MATLABAlgorithm end
@@ -22,10 +22,6 @@ function DiffEqBase.__solve(
 
     tType = eltype(tupType)
 
-    if !(typeof(prob.f) <: DiffEqBase.AbstractParameterizedFunction)
-      error("Functions must be defined via ParameterizedFunctions.jl to work with this package.")
-    end
-
     if prob.tspan[end]-prob.tspan[1]<tType(0)
         error("final time must be greater than starting time. Aborting.")
     end
@@ -43,15 +39,11 @@ function DiffEqBase.__solve(
         u0 = prob.u0
     end
 
-    strs = [string(f.fex.args[2i].args[2]) for i in 1:length(f.syms)]
-    matstr = ""
-    for i in 1:length(strs)
-      matstr *= strs[i]
-      i < length(strs) && (matstr *= "; ")
-    end
-    matstr = replace(matstr,"["=>"(")
-    matstr = replace(matstr,"]"=>")")
-    matstr = "f = @(t,internal_var___u) ["*matstr*"];"
+	sys = first(modelingtoolkitize(prob))
+
+    matstr = ModelingToolkit.build_function(sys.eqs,sys.dvs,
+										    sys.ps,sys.iv,
+										    target = ModelingToolkit.MATLABTarget())
 
     # Send the variables
     put_variable(get_default_msession(),:tspan,tspan)
@@ -66,7 +58,7 @@ function DiffEqBase.__solve(
     eval_string("options = odeset('RelTol',reltol,'AbsTol',abstol);")
     algstr = string(typeof(alg).name.name)
     #algstr = replace(string(typeof(alg)),"MATLABDiffEq.","")
-    eval_string("[t,u] = $(algstr)(f,tspan,u0,options);")
+    eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
     ts = jvector(get_mvariable(:t))
     timeseries_tmp = jarray(get_mvariable(:u))
 
