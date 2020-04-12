@@ -41,7 +41,7 @@ function DiffEqBase.__solve(
 
 	sys = first(modelingtoolkitize(prob))
 
-    matstr = ModelingToolkit.build_function(sys.eqs,sys.dvs,
+    matstr = ModelingToolkit.build_function(sys.eqs,sys.states,
 										    sys.ps,sys.iv,
 										    target = ModelingToolkit.MATLABTarget())
 
