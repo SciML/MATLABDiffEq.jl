@@ -29,7 +29,12 @@ function DiffEqBase.__solve(
     f = prob.f
     u0 = prob.u0
 
-    tspan = sort(unique([prob.tspan[1];saveat;prob.tspan[2]]))
+    if typeof(saveat) <: Number
+        tspan = [prob.tspan[1]:saveat:prob.tspan[2];]
+        tspan = sort(unique([prob.tspan[1];tspan;prob.tspan[2]]))
+    else
+        tspan = sort(unique([prob.tspan[1];saveat;prob.tspan[2]]))
+    end
 
     sizeu = size(prob.u0)
 
