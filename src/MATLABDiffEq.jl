@@ -81,6 +81,11 @@ function DiffEqBase.__solve(
         timeseries = timeseries_tmp
     end
 
+    destats = DiffEqBase.DEStats(0)
+
+    # destats.naccept = solstats["nsteps"]
+    # #destats.nsolve = solstats[""]
+
     DiffEqBase.build_solution(prob,alg,ts,timeseries,
                  timeseries_errors = timeseries_errors,destats=solstats)
 end
