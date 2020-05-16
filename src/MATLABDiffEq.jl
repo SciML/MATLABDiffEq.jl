@@ -62,9 +62,12 @@ function DiffEqBase.__solve(
 
     eval_string("options = odeset('RelTol',reltol,'AbsTol',abstol);")
     algstr = string(typeof(alg).name.name)
-    #algstr = replace(string(typeof(alg)),"MATLABDiffEq.","")
-    eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
+    eval_string("mxsol = $(algstr)(diffeqf,tspan,u0,options);")
+    eval_string("mxsolstats = struct(mxsol.stats);")
+    solstats = get_variable(:mxsolstats)
+    eval_string("t = mxsol.x;")
     ts = jvector(get_mvariable(:t))
+    eval_string("u = mxsol.y';")
     timeseries_tmp = jarray(get_mvariable(:u))
 
     # Reshape the result if needed
@@ -77,8 +80,22 @@ function DiffEqBase.__solve(
         timeseries = timeseries_tmp
     end
 
+    destats = buildDEStats(solstats)
+
     DiffEqBase.build_solution(prob,alg,ts,timeseries,
-                 timeseries_errors = timeseries_errors)
+                 timeseries_errors = timeseries_errors,destats = destats)
+end
+
+function buildDEStats(solverstats::Dict)
+
+    destats = DiffEqBase.DEStats(0)
+    destats.nf = if (haskey(solverstats, "nfevals")) solverstats["nfevals"] else 0 end
+    destats.nreject = if (haskey(solverstats, "nfailed")) solverstats["nfailed"] else 0 end
+    destats.naccept = if (haskey(solverstats, "nsteps")) solverstats["nsteps"] else 0 end
+    destats.nsolve = if (haskey(solverstats, "nsolves")) solverstats["nsolves"] else 0 end
+    destats.njacs = if (haskey(solverstats, "npds")) solverstats["npds"] else 0 end
+    destats.nw = if (haskey(solverstats, "ndecomps")) solverstats["ndecomps"] else 0 end
+    destats
 end
 
 end # module
