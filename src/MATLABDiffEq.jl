@@ -62,9 +62,13 @@ function DiffEqBase.__solve(
 
     eval_string("options = odeset('RelTol',reltol,'AbsTol',abstol);")
     algstr = string(typeof(alg).name.name)
-    #algstr = replace(string(typeof(alg)),"MATLABDiffEq.","")
-    eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
+    @show algstr
+    eval_string("mxsol = $(algstr)(diffeqf,tspan,u0,options);")
+    eval_string("mxsolstats = struct(mxsol.stats);")
+    solstats= get_variable(:mxsolstats)
+    eval_string("t = mxsol.x;")
     ts = jvector(get_mvariable(:t))
+    eval_string("u = mxsol.y';")
     timeseries_tmp = jarray(get_mvariable(:u))
 
     # Reshape the result if needed
@@ -78,7 +82,7 @@ function DiffEqBase.__solve(
     end
 
     DiffEqBase.build_solution(prob,alg,ts,timeseries,
-                 timeseries_errors = timeseries_errors)
+                 timeseries_errors = timeseries_errors,destats=solstats)
 end
 
 end # module
