@@ -94,6 +94,7 @@ function buildDEStats(solverstats::Dict)
     destats.naccept = if (haskey(solverstats, "nsteps")) solverstats["nsteps"] else 0 end
     destats.nsolve = if (haskey(solverstats, "nsolves")) solverstats["nsolves"] else 0 end
     destats.njacs = if (haskey(solverstats, "npds")) solverstats["npds"] else 0 end
+    destats.nw = if (haskey(solverstats, "ndecomps")) solverstats["ndecomps"] else 0 end
     destats
 end
 
