@@ -44,11 +44,11 @@ function DiffEqBase.__solve(
         u0 = prob.u0
     end
 
-	sys = first(modelingtoolkitize(prob))
+    sys = modelingtoolkitize(prob)
 
     matstr = ModelingToolkit.build_function(sys.eqs,sys.states,
-										    sys.ps,sys.iv,
-										    target = ModelingToolkit.MATLABTarget())
+					    sys.ps,sys.iv,
+					    target = ModelingToolkit.MATLABTarget())
 
     # Send the variables
     put_variable(get_default_msession(),:tspan,tspan)
