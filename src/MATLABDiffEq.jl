@@ -18,6 +18,7 @@ function DiffEqBase.__solve(
     prob::DiffEqBase.AbstractODEProblem{uType,tupType,isinplace},
     alg::AlgType,timeseries=[],ts=[],ks=[];
     saveat=eltype(tupType)[],timeseries_errors=true,reltol = 1e-3, abstol = 1e-6,
+    callback = nothing,
     kwargs...) where {uType,tupType,isinplace,AlgType<:MATLABAlgorithm}
 
     tType = eltype(tupType)
@@ -43,6 +44,8 @@ function DiffEqBase.__solve(
     else
         u0 = prob.u0
     end
+	
+    callback !== nothing && error("Callbacks are not supported in MATLABDiffEq.jl")
 
     sys = modelingtoolkitize(prob)
 
