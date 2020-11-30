@@ -1,5 +1,7 @@
 # MATLABDiffEq.jl
 
+[![Build Status](https://github.com/SciML/MATLABDiffEq.jl/workflows/CI/badge.svg)](https://github.com/SciML/MATLABDiffEq.jl/actions?query=workflow%3ACI)
+
 [![Join the chat at https://gitter.im/JuliaDiffEq/Lobby](https://badges.gitter.im/JuliaDiffEq/Lobby.svg)](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 MATLABDiffEq.jl is a common interface binding for the [MATLAB](https://www.mathworks.com/products/matlab.html) ordinary differential equation solvers. It uses the [MATLAB.jl](https://github.com/JuliaInterop/MATLAB.jl) interop in order to
