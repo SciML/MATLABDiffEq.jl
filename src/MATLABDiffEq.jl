@@ -44,13 +44,13 @@ function DiffEqBase.__solve(
     else
         u0 = prob.u0
     end
-	
+
     callback !== nothing && error("Callbacks are not supported in MATLABDiffEq.jl")
 
     sys = modelingtoolkitize(prob)
 
-    matstr = ModelingToolkit.build_function(sys.eqs,sys.states,
-					    sys.ps,sys.iv,
+    matstr = ModelingToolkit.build_function(equations(sys),states(sys),
+					    parameters(sys),independent_variable(sys),
 					    target = ModelingToolkit.MATLABTarget())
 
     # Send the variables
