@@ -50,7 +50,7 @@ function DiffEqBase.__solve(
     sys = modelingtoolkitize(prob)
 
     matstr = ModelingToolkit.build_function(map(x->x.rhs,equations(sys)),states(sys),
-					    parameters(sys),independent_variable(sys),
+					    parameters(sys),independent_variables(sys)[1],
 					    target = ModelingToolkit.MATLABTarget())
 
     # Send the variables
