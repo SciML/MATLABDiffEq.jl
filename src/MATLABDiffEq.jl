@@ -63,11 +63,20 @@ function DiffEqBase.__solve(
     # Send the function over
     eval_string(matstr)
 
-    eval_string("options = odeset('RelTol',reltol,'AbsTol',abstol);")
+    eval_string("options = odeset('RelTol',reltol,'AbsTol',abstol,'Stats',);")
     algstr = string(typeof(alg).name.name)
     eval_string("mxsol = $(algstr)(diffeqf,tspan,u0,options);")
-    eval_string("mxsolstats = struct(mxsol.stats);")
-    solstats = get_variable(:mxsolstats)
+		
+    eval_string("statsexists = isfield(mxsol,'stats')")	
+    hasstats = get_variable(:statsexists)
+    if hasstats
+    	eval_string("mxsolstats = struct(mxsol.stats);")
+    	solstats = get_variable(:mxsolstats)
+	destats = buildDEStats(solstats)
+    else
+	destats = nothing
+    end
+			
     eval_string("t = mxsol.x;")
     ts = jvector(get_mvariable(:t))
     eval_string("u = mxsol.y';")
@@ -81,9 +90,7 @@ function DiffEqBase.__solve(
         end
     else
         timeseries = timeseries_tmp
-    end
-
-    destats = buildDEStats(solstats)
+    end  
 
     DiffEqBase.build_solution(prob,alg,ts,timeseries,
                  timeseries_errors = timeseries_errors,destats = destats)
