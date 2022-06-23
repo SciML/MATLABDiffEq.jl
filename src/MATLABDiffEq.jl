@@ -16,14 +16,21 @@ struct ode15i <: MATLABAlgorithm end
 
 function DiffEqBase.__solve(
     prob::DiffEqBase.AbstractODEProblem{uType,tupType,isinplace},
-    alg::AlgType,timeseries=[],ts=[],ks=[];
-    saveat=eltype(tupType)[],timeseries_errors=true,reltol = 1e-3, abstol = 1e-6,
+    alg::AlgType,
+    timeseries = [],
+    ts = [],
+    ks = [];
+    saveat = eltype(tupType)[],
+    timeseries_errors = true,
+    reltol = 1e-3,
+    abstol = 1e-6,
     callback = nothing,
-    kwargs...) where {uType,tupType,isinplace,AlgType<:MATLABAlgorithm}
+    kwargs...,
+) where {uType,tupType,isinplace,AlgType<:MATLABAlgorithm}
 
     tType = eltype(tupType)
 
-    if prob.tspan[end]-prob.tspan[1]<tType(0)
+    if prob.tspan[end] - prob.tspan[1] < tType(0)
         error("final time must be greater than starting time. Aborting.")
     end
 
@@ -32,9 +39,9 @@ function DiffEqBase.__solve(
 
     if typeof(saveat) <: Number
         tspan = Array(prob.tspan[1]:saveat:prob.tspan[2])
-        tspan = sort(unique([prob.tspan[1];tspan;prob.tspan[2]]))
+        tspan = sort(unique([prob.tspan[1]; tspan; prob.tspan[2]]))
     else
-        tspan = sort(unique([prob.tspan[1];saveat;prob.tspan[2]]))
+        tspan = sort(unique([prob.tspan[1]; saveat; prob.tspan[2]]))
     end
 
     sizeu = size(prob.u0)
@@ -49,16 +56,20 @@ function DiffEqBase.__solve(
 
     sys = modelingtoolkitize(prob)
 
-    matstr = ModelingToolkit.build_function(map(x->x.rhs,equations(sys)),states(sys),
-					    parameters(sys),independent_variables(sys)[1],
-					    target = ModelingToolkit.MATLABTarget())
+    matstr = ModelingToolkit.build_function(
+        map(x -> x.rhs, equations(sys)),
+        states(sys),
+        parameters(sys),
+        independent_variables(sys)[1],
+        target = ModelingToolkit.MATLABTarget(),
+    )
 
     # Send the variables
-    put_variable(get_default_msession(),:tspan,tspan)
-    put_variable(get_default_msession(),:u0,u0)
-    put_variable(get_default_msession(),:internal_var___p,prob.p)
-    put_variable(get_default_msession(),:reltol,reltol)
-    put_variable(get_default_msession(),:abstol,abstol)
+    put_variable(get_default_msession(), :tspan, tspan)
+    put_variable(get_default_msession(), :u0, u0)
+    put_variable(get_default_msession(), :internal_var___p, prob.p)
+    put_variable(get_default_msession(), :reltol, reltol)
+    put_variable(get_default_msession(), :abstol, abstol)
 
     # Send the function over
     eval_string(matstr)
@@ -75,9 +86,9 @@ function DiffEqBase.__solve(
 
     # Reshape the result if needed
     if uType <: AbstractArray
-        timeseries = Vector{uType}(undef,length(ts))
-        for i=1:length(ts)
-            timeseries[i] = @view timeseries_tmp[i,:]
+        timeseries = Vector{uType}(undef, length(ts))
+        for i = 1:length(ts)
+            timeseries[i] = @view timeseries_tmp[i, :]
         end
     else
         timeseries = timeseries_tmp
@@ -85,19 +96,49 @@ function DiffEqBase.__solve(
 
     destats = buildDEStats(solstats)
 
-    DiffEqBase.build_solution(prob,alg,ts,timeseries,
-                 timeseries_errors = timeseries_errors,destats = destats)
+    DiffEqBase.build_solution(
+        prob,
+        alg,
+        ts,
+        timeseries,
+        timeseries_errors = timeseries_errors,
+        destats = destats,
+    )
 end
 
 function buildDEStats(solverstats::Dict)
 
     destats = DiffEqBase.DEStats(0)
-    destats.nf = if (haskey(solverstats, "nfevals")) solverstats["nfevals"] else 0 end
-    destats.nreject = if (haskey(solverstats, "nfailed")) solverstats["nfailed"] else 0 end
-    destats.naccept = if (haskey(solverstats, "nsteps")) solverstats["nsteps"] else 0 end
-    destats.nsolve = if (haskey(solverstats, "nsolves")) solverstats["nsolves"] else 0 end
-    destats.njacs = if (haskey(solverstats, "npds")) solverstats["npds"] else 0 end
-    destats.nw = if (haskey(solverstats, "ndecomps")) solverstats["ndecomps"] else 0 end
+    destats.nf = if (haskey(solverstats, "nfevals"))
+        solverstats["nfevals"]
+    else
+        0
+    end
+    destats.nreject = if (haskey(solverstats, "nfailed"))
+        solverstats["nfailed"]
+    else
+        0
+    end
+    destats.naccept = if (haskey(solverstats, "nsteps"))
+        solverstats["nsteps"]
+    else
+        0
+    end
+    destats.nsolve = if (haskey(solverstats, "nsolves"))
+        solverstats["nsolves"]
+    else
+        0
+    end
+    destats.njacs = if (haskey(solverstats, "npds"))
+        solverstats["npds"]
+    else
+        0
+    end
+    destats.nw = if (haskey(solverstats, "ndecomps"))
+        solverstats["ndecomps"]
+    else
+        0
+    end
     destats
 end
 
