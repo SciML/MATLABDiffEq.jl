@@ -94,7 +94,7 @@ function DiffEqBase.__solve(
         timeseries = timeseries_tmp
     end
 
-    destats = buildDEStats(solstats)
+    stats = buildDEStats(solstats)
 
     DiffEqBase.build_solution(
         prob,
@@ -102,13 +102,13 @@ function DiffEqBase.__solve(
         ts,
         timeseries,
         timeseries_errors = timeseries_errors,
-        destats = destats,
+        stats = stats,
     )
 end
 
 function buildDEStats(solverstats::Dict)
 
-    destats = DiffEqBase.DEStats(0)
+    destats = DiffEqBase.Stats(0)
     destats.nf = if (haskey(solverstats, "nfevals"))
         solverstats["nfevals"]
     else
