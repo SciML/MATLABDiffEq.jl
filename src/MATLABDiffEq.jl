@@ -15,19 +15,18 @@ struct ode15s <: MATLABAlgorithm end
 struct ode15i <: MATLABAlgorithm end
 
 function DiffEqBase.__solve(
-    prob::DiffEqBase.AbstractODEProblem{uType,tupType,isinplace},
-    alg::AlgType,
-    timeseries = [],
-    ts = [],
-    ks = [];
-    saveat = eltype(tupType)[],
-    timeseries_errors = true,
-    reltol = 1e-3,
-    abstol = 1e-6,
-    callback = nothing,
-    kwargs...,
-) where {uType,tupType,isinplace,AlgType<:MATLABAlgorithm}
-
+        prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
+        alg::AlgType,
+        timeseries = [],
+        ts = [],
+        ks = [];
+        saveat = eltype(tupType)[],
+        timeseries_errors = true,
+        reltol = 1e-3,
+        abstol = 1e-6,
+        callback = nothing,
+        kwargs...
+) where {uType, tupType, isinplace, AlgType <: MATLABAlgorithm}
     tType = eltype(tupType)
 
     if prob.tspan[end] - prob.tspan[1] < tType(0)
@@ -61,7 +60,7 @@ function DiffEqBase.__solve(
         states(sys),
         parameters(sys),
         independent_variables(sys)[1],
-        target = ModelingToolkit.MATLABTarget(),
+        target = ModelingToolkit.MATLABTarget()
     )
 
     # Send the variables
@@ -87,7 +86,7 @@ function DiffEqBase.__solve(
     # Reshape the result if needed
     if uType <: AbstractArray
         timeseries = Vector{uType}(undef, length(ts))
-        for i = 1:length(ts)
+        for i in 1:length(ts)
             timeseries[i] = @view timeseries_tmp[i, :]
         end
     else
@@ -102,12 +101,11 @@ function DiffEqBase.__solve(
         ts,
         timeseries,
         timeseries_errors = timeseries_errors,
-        stats = stats,
+        stats = stats
     )
 end
 
 function buildDEStats(solverstats::Dict)
-
     destats = DiffEqBase.Stats(0)
     destats.nf = if (haskey(solverstats, "nfevals"))
         solverstats["nfevals"]
