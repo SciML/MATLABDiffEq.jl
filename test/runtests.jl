@@ -20,15 +20,13 @@ tspan = (0.0, 100.0)
 prob = ODEProblem(lorenz, u0, tspan)
 sol = solve(prob, MATLABDiffEq.ode45())
 
-algs = [
-    MATLABDiffEq.ode23
-    MATLABDiffEq.ode45
-    MATLABDiffEq.ode113
-    MATLABDiffEq.ode23s
-    MATLABDiffEq.ode23t
-    MATLABDiffEq.ode23tb
-    MATLABDiffEq.ode15s
-]
+algs = [MATLABDiffEq.ode23
+        MATLABDiffEq.ode45
+        MATLABDiffEq.ode113
+        MATLABDiffEq.ode23s
+        MATLABDiffEq.ode23t
+        MATLABDiffEq.ode23tb
+        MATLABDiffEq.ode15s]
 
 for alg in algs
     sol = solve(prob, alg())
