@@ -1,16 +1,15 @@
 # MATLABDiffEq.jl
 
-[![Join the chat at https://gitter.im/JuliaDiffEq/Lobby](https://badges.gitter.im/JuliaDiffEq/Lobby.svg)](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://julialang.zulipchat.com/#narrow/stream/279055-sciml-bridged](https://img.shields.io/badge/chat-julialang%20zulip-blue)](https://julialang.zulipchat.com/#narrow/stream/279055-sciml-bridged)
+[![Build Status](https://github.com/SciML/MATLABDiffEq.jl/workflows/CI/badge.svg)](https://github.com/SciML/MATLABDiffEq.jl/actions)
 
 MATLABDiffEq.jl is a common interface binding for the [MATLAB](https://www.mathworks.com/products/matlab.html) ordinary differential equation solvers. It uses the [MATLAB.jl](https://github.com/JuliaInterop/MATLAB.jl) interop in order to
-send the differential equation over to MATLAB and solve it. Note that this
-package requires the differential equation function to be defined using
-[ParameterizedFunctions.jl](https://github.com/JuliaDiffEq/ParameterizedFunctions.jl).
+send the differential equation over to MATLAB and solve it.
 
 Note that this package isn't for production use and is mostly just for benchmarking
 and helping new users migrate models over to Julia.
 For more efficient solvers, see the
-[DifferentialEquations.jl documentation](https://github.com/JuliaDiffEq/DifferentialEquations.jl).
+[DifferentialEquations.jl documentation](https://docs.sciml.ai/DiffEqDocs/stable/).
 
 ## Installation
 
@@ -23,13 +22,29 @@ Pkg.add("MATLABDiffEq")
 
 ## Using MATLABDiffEq.jl
 
-MATLABDiffEq.jl is simply a solver on the DiffEq common interface, so for details see the [DifferentialEquations.jl documentation](https://juliadiffeq.github.io/DiffEqDocs.jl/dev/).
+MATLABDiffEq.jl is simply a solver on the DiffEq common interface, so for details see the [DifferentialEquations.jl documentation](https://docs.sciml.ai/DiffEqDocs/stable/).
 However, the only options implemented are those for error calculations
-(`timeseries_error`), `saveat` and tolerances.
+(`timeseries_errors`), `saveat`, and tolerances.
 
 Note that the algorithms are defined to have the same name as the MATLAB algorithms,
 but are not exported. Thus to use `ode45`, you would specify the algorithm as
 `MATLABDiffEq.ode45()`.
+
+### Available Solvers
+
+**Non-stiff solvers:**
+- `MATLABDiffEq.ode23()` - Low-order solver
+- `MATLABDiffEq.ode45()` - Medium-order solver (most commonly used)
+- `MATLABDiffEq.ode113()` - Variable-order Adams-Bashforth-Moulton solver
+
+**Stiff solvers:**
+- `MATLABDiffEq.ode15s()` - Variable-order BDF/NDF solver
+- `MATLABDiffEq.ode23s()` - Low-order Rosenbrock solver
+- `MATLABDiffEq.ode23t()` - Trapezoidal rule solver
+- `MATLABDiffEq.ode23tb()` - TR-BDF2 solver
+
+**DAE solver:**
+- `MATLABDiffEq.ode15i()` - For fully implicit differential equations
 
 ## Example
 
@@ -59,7 +74,7 @@ sol = solve(prob, MATLABDiffEq.ode45())
 
 ## Measuring Overhead
 
-To measure the overhead of over the wrapper, note that the variables
+To measure the overhead of the wrapper, note that the variables
 from the session will be still stored in MATLAB after the computation
 is done. Thus you can simply call the same ODE function and time it
 directly. This is done by:
