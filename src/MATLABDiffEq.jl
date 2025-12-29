@@ -4,6 +4,13 @@ using Reexport
 @reexport using DiffEqBase
 using MATLAB, ModelingToolkit
 
+# Handle ModelingToolkit API changes: states -> unknowns
+if isdefined(ModelingToolkit, :unknowns)
+    const mtk_states = ModelingToolkit.unknowns
+else
+    const mtk_states = ModelingToolkit.states
+end
+
 abstract type MATLABAlgorithm <: DiffEqBase.AbstractODEAlgorithm end
 struct ode23 <: MATLABAlgorithm end
 struct ode45 <: MATLABAlgorithm end
@@ -57,7 +64,7 @@ function DiffEqBase.__solve(
 
     matstr = ModelingToolkit.build_function(
         map(x -> x.rhs, equations(sys)),
-        states(sys),
+        mtk_states(sys),
         parameters(sys),
         independent_variables(sys)[1],
         target = ModelingToolkit.MATLABTarget()
@@ -69,6 +76,11 @@ function DiffEqBase.__solve(
     put_variable(get_default_msession(), :internal_var___p, prob.p)
     put_variable(get_default_msession(), :reltol, reltol)
     put_variable(get_default_msession(), :abstol, abstol)
+
+    # Define the ifelse helper function in MATLAB
+    # MATLAB doesn't have a built-in ifelse, so we need to define one
+    # This allows symbolic ifelse expressions to be evaluated properly
+    eval_string("ifelse = @(cond, a, b) cond .* a + ~cond .* b;")
 
     # Send the function over
     eval_string(matstr)
