@@ -3,6 +3,7 @@ module MATLABDiffEq
 using Reexport
 @reexport using DiffEqBase
 using MATLAB, ModelingToolkit
+using PrecompileTools
 
 # Handle ModelingToolkit API changes: states -> unknowns
 if isdefined(ModelingToolkit, :unknowns)
@@ -150,6 +151,35 @@ function buildDEStats(solverstats::Dict)
         0
     end
     destats
+end
+
+@setup_workload begin
+    # Precompile algorithm struct instantiations and buildDEStats
+    @compile_workload begin
+        # Instantiate algorithm structs - this precompiles their constructors
+        _ = ode23()
+        _ = ode45()
+        _ = ode113()
+        _ = ode23s()
+        _ = ode23t()
+        _ = ode23tb()
+        _ = ode15s()
+        _ = ode15i()
+
+        # Precompile buildDEStats with typical MATLAB stats dictionaries
+        test_stats = Dict{String, Any}(
+            "nfevals" => 100,
+            "nfailed" => 5,
+            "nsteps" => 95,
+            "nsolves" => 50,
+            "npds" => 10,
+            "ndecomps" => 8
+        )
+        _ = buildDEStats(test_stats)
+
+        # Also precompile with missing keys (common case)
+        _ = buildDEStats(Dict{String, Any}())
+    end
 end
 
 end # module
