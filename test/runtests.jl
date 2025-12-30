@@ -1,5 +1,11 @@
 using DiffEqBase, MATLABDiffEq, ParameterizedFunctions, Test
 
+# Interface tests - these test type validation without needing MATLAB runtime
+include("interface_tests.jl")
+
+# The following tests require MATLAB runtime to be available
+# They test the actual ODE solving functionality
+
 f = @ode_def_bare LotkaVolterra begin
     dx = a * x - b * x * y
     dy = -c * y + d * x * y
