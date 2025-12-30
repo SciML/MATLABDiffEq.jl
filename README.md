@@ -26,6 +26,17 @@ MATLABDiffEq.jl is simply a solver on the DiffEq common interface, so for detail
 However, the only options implemented are those for error calculations
 (`timeseries_errors`), `saveat`, and tolerances.
 
+### Type Requirements
+
+Since this package sends data to MATLAB for computation, it only supports types
+that MATLAB can handle:
+
+- **Supported types:** `Float64`, integers (`Int64`, etc.), and `Complex{Float64}`
+- **Not supported:** `BigFloat`, `Float32`, GPU arrays (`CuArray`, `JLArray`), or other custom array types
+
+If you need arbitrary precision or GPU computing, use the native Julia solvers
+from [DifferentialEquations.jl](https://docs.sciml.ai/DiffEqDocs/stable/) instead.
+
 Note that the algorithms are defined to have the same name as the MATLAB algorithms,
 but are not exported. Thus to use `ode45`, you would specify the algorithm as
 `MATLABDiffEq.ode45()`.

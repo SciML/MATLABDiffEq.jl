@@ -5,6 +5,39 @@ using Reexport
 using MATLAB, ModelingToolkit
 using PrecompileTools
 
+# MATLAB only supports Float64 arrays. Check if a type is MATLAB-compatible.
+_is_matlab_compatible_eltype(::Type{Float64}) = true
+_is_matlab_compatible_eltype(::Type{<:Integer}) = true  # MATLAB can convert integers
+_is_matlab_compatible_eltype(::Type{<:Complex{Float64}}) = true
+_is_matlab_compatible_eltype(::Type) = false
+
+function _check_matlab_compatible(u0, tspan)
+    T = eltype(u0)
+    if !_is_matlab_compatible_eltype(T)
+        throw(ArgumentError(
+            "MATLABDiffEq.jl requires Float64-compatible element types. " *
+            "Got eltype(u0) = $T. MATLAB does not support arbitrary precision " *
+            "(BigFloat) or GPU arrays (JLArrays, CuArrays). Please convert your " *
+            "initial conditions to Float64: u0 = Float64.(u0)"
+        ))
+    end
+    tT = eltype(tspan)
+    if !_is_matlab_compatible_eltype(tT)
+        throw(ArgumentError(
+            "MATLABDiffEq.jl requires Float64-compatible time span types. " *
+            "Got eltype(tspan) = $tT. MATLAB does not support arbitrary precision " *
+            "(BigFloat). Please use Float64 for tspan: tspan = Float64.(tspan)"
+        ))
+    end
+    # Check that the array type itself is a standard Julia array
+    if !(u0 isa Array || u0 isa Number)
+        @warn "MATLABDiffEq.jl works best with standard Julia Arrays. " *
+              "Got $(typeof(u0)). The array will be converted to a standard Array " *
+              "before being sent to MATLAB."
+    end
+    return nothing
+end
+
 # Handle ModelingToolkit API changes: states -> unknowns
 if isdefined(ModelingToolkit, :unknowns)
     const mtk_states = ModelingToolkit.unknowns
@@ -35,6 +68,9 @@ function DiffEqBase.__solve(
         callback = nothing,
         kwargs...
 ) where {uType, tupType, isinplace, AlgType <: MATLABAlgorithm}
+    # Validate that input types are MATLAB-compatible
+    _check_matlab_compatible(prob.u0, prob.tspan)
+
     tType = eltype(tupType)
 
     if prob.tspan[end] - prob.tspan[1] < tType(0)
@@ -179,6 +215,14 @@ end
 
         # Also precompile with missing keys (common case)
         _ = buildDEStats(Dict{String, Any}())
+
+        # Precompile type compatibility checks
+        _ = _is_matlab_compatible_eltype(Float64)
+        _ = _is_matlab_compatible_eltype(Int64)
+        _ = _is_matlab_compatible_eltype(Complex{Float64})
+        _ = _is_matlab_compatible_eltype(BigFloat)
+        _ = _check_matlab_compatible([1.0, 2.0], (0.0, 1.0))
+        _ = _check_matlab_compatible(1.0, (0.0, 1.0))
     end
 end
 
