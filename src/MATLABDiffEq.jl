@@ -14,26 +14,30 @@ _is_matlab_compatible_eltype(::Type) = false
 function _check_matlab_compatible(u0, tspan)
     T = eltype(u0)
     if !_is_matlab_compatible_eltype(T)
-        throw(ArgumentError(
-            "MATLABDiffEq.jl requires Float64-compatible element types. " *
-            "Got eltype(u0) = $T. MATLAB does not support arbitrary precision " *
-            "(BigFloat) or GPU arrays (JLArrays, CuArrays). Please convert your " *
-            "initial conditions to Float64: u0 = Float64.(u0)"
-        ))
+        throw(
+            ArgumentError(
+                "MATLABDiffEq.jl requires Float64-compatible element types. " *
+                    "Got eltype(u0) = $T. MATLAB does not support arbitrary precision " *
+                    "(BigFloat) or GPU arrays (JLArrays, CuArrays). Please convert your " *
+                    "initial conditions to Float64: u0 = Float64.(u0)"
+            )
+        )
     end
     tT = eltype(tspan)
     if !_is_matlab_compatible_eltype(tT)
-        throw(ArgumentError(
-            "MATLABDiffEq.jl requires Float64-compatible time span types. " *
-            "Got eltype(tspan) = $tT. MATLAB does not support arbitrary precision " *
-            "(BigFloat). Please use Float64 for tspan: tspan = Float64.(tspan)"
-        ))
+        throw(
+            ArgumentError(
+                "MATLABDiffEq.jl requires Float64-compatible time span types. " *
+                    "Got eltype(tspan) = $tT. MATLAB does not support arbitrary precision " *
+                    "(BigFloat). Please use Float64 for tspan: tspan = Float64.(tspan)"
+            )
+        )
     end
     # Check that the array type itself is a standard Julia array
     if !(u0 isa Array || u0 isa Number)
         @warn "MATLABDiffEq.jl works best with standard Julia Arrays. " *
-              "Got $(typeof(u0)). The array will be converted to a standard Array " *
-              "before being sent to MATLAB."
+            "Got $(typeof(u0)). The array will be converted to a standard Array " *
+            "before being sent to MATLAB."
     end
     return nothing
 end
@@ -63,11 +67,11 @@ function DiffEqBase.__solve(
         ks = [];
         saveat = eltype(tupType)[],
         timeseries_errors = true,
-        reltol = 1e-3,
-        abstol = 1e-6,
+        reltol = 1.0e-3,
+        abstol = 1.0e-6,
         callback = nothing,
         kwargs...
-) where {uType, tupType, isinplace, AlgType <: MATLABAlgorithm}
+    ) where {uType, tupType, isinplace, AlgType <: MATLABAlgorithm}
     # Validate that input types are MATLAB-compatible
     _check_matlab_compatible(prob.u0, prob.tspan)
 
@@ -144,7 +148,7 @@ function DiffEqBase.__solve(
 
     stats = buildDEStats(solstats)
 
-    DiffEqBase.build_solution(
+    return DiffEqBase.build_solution(
         prob,
         alg,
         ts,
@@ -170,7 +174,7 @@ function buildDEStats(solverstats::Dict{String, <:Any})::DiffEqBase.Stats
     destats.nsolve = Int(get(solverstats, "nsolves", 0))
     destats.njacs = Int(get(solverstats, "npds", 0))
     destats.nw = Int(get(solverstats, "ndecomps", 0))
-    destats
+    return destats
 end
 
 @setup_workload begin
