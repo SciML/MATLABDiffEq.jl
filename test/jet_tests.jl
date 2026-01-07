@@ -106,4 +106,54 @@ end
         @test isconcretetype(ode15s_test)
         @test isconcretetype(ode15i_test)
     end
+
+    @testset "Type compatibility functions" begin
+        # Test the type compatibility check functions
+        # These mirror the actual module implementations
+        # Note: BigInt is NOT accepted because MATLAB doesn't support arbitrary precision
+
+        _is_matlab_compatible_eltype_test(::Type{Float64})::Bool = true
+        _is_matlab_compatible_eltype_test(::Type{<:Union{Int8, Int16, Int32, Int64, Int128}})::Bool = true
+        _is_matlab_compatible_eltype_test(::Type{<:Union{UInt8, UInt16, UInt32, UInt64, UInt128}})::Bool = true
+        _is_matlab_compatible_eltype_test(::Type{<:Complex{Float64}})::Bool = true
+        _is_matlab_compatible_eltype_test(::Type)::Bool = false
+
+        # Test return types are Bool
+        @test _is_matlab_compatible_eltype_test(Float64) === true
+        @test _is_matlab_compatible_eltype_test(Int64) === true
+        @test _is_matlab_compatible_eltype_test(UInt64) === true
+        @test _is_matlab_compatible_eltype_test(Complex{Float64}) === true
+        @test _is_matlab_compatible_eltype_test(BigFloat) === false
+        @test _is_matlab_compatible_eltype_test(BigInt) === false
+        @test _is_matlab_compatible_eltype_test(Float32) === false
+
+        # JET @test_opt analysis for type stability
+        if HAS_JET
+            @testset "JET @test_opt type stability" begin
+                # Test type stability of _is_matlab_compatible_eltype
+                @test_opt _is_matlab_compatible_eltype_test(Float64)
+                @test_opt _is_matlab_compatible_eltype_test(Int64)
+                @test_opt _is_matlab_compatible_eltype_test(BigFloat)
+            end
+        end
+    end
+
+    @testset "Return type inference" begin
+        # Test that return types can be inferred correctly
+        function buildDEStats_test2(solverstats::Dict{String, <:Any})::DiffEqBase.Stats
+            destats = DiffEqBase.Stats(0)
+            destats.nf = Int(get(solverstats, "nfevals", 0))
+            destats.nreject = Int(get(solverstats, "nfailed", 0))
+            destats.naccept = Int(get(solverstats, "nsteps", 0))
+            destats.nsolve = Int(get(solverstats, "nsolves", 0))
+            destats.njacs = Int(get(solverstats, "npds", 0))
+            destats.nw = Int(get(solverstats, "ndecomps", 0))
+            destats
+        end
+
+        # Verify return type is inferred as concrete
+        return_types = Base.return_types(buildDEStats_test2, (Dict{String, Any},))
+        @test length(return_types) == 1
+        @test return_types[1] == DiffEqBase.Stats
+    end
 end

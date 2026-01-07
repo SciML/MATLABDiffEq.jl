@@ -6,12 +6,15 @@ using MATLAB, ModelingToolkit
 using PrecompileTools
 
 # MATLAB only supports Float64 arrays. Check if a type is MATLAB-compatible.
+# Note: We specifically accept standard Julia integer types that MATLAB can convert,
+# but NOT BigInt since MATLAB doesn't support arbitrary precision integers.
 _is_matlab_compatible_eltype(::Type{Float64}) = true
-_is_matlab_compatible_eltype(::Type{<:Integer}) = true  # MATLAB can convert integers
+_is_matlab_compatible_eltype(::Type{<:Union{Int8, Int16, Int32, Int64, Int128}}) = true
+_is_matlab_compatible_eltype(::Type{<:Union{UInt8, UInt16, UInt32, UInt64, UInt128}}) = true
 _is_matlab_compatible_eltype(::Type{<:Complex{Float64}}) = true
 _is_matlab_compatible_eltype(::Type) = false
 
-function _check_matlab_compatible(u0, tspan)
+function _check_matlab_compatible(u0, tspan)::Nothing
     T = eltype(u0)
     if !_is_matlab_compatible_eltype(T)
         throw(
@@ -207,8 +210,10 @@ end
         # Precompile type compatibility checks
         _ = _is_matlab_compatible_eltype(Float64)
         _ = _is_matlab_compatible_eltype(Int64)
+        _ = _is_matlab_compatible_eltype(UInt64)
         _ = _is_matlab_compatible_eltype(Complex{Float64})
         _ = _is_matlab_compatible_eltype(BigFloat)
+        _ = _is_matlab_compatible_eltype(BigInt)
         _ = _check_matlab_compatible([1.0, 2.0], (0.0, 1.0))
         _ = _check_matlab_compatible(1.0, (0.0, 1.0))
     end
