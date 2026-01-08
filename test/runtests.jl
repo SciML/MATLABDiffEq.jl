@@ -3,6 +3,9 @@ using DiffEqBase, MATLABDiffEq, ParameterizedFunctions, Test
 # Interface tests - these test type validation without needing MATLAB runtime
 include("interface_tests.jl")
 
+# JET static analysis tests - these also run without MATLAB
+include("jet_tests.jl")
+
 # The following tests require MATLAB runtime to be available
 # They test the actual ODE solving functionality
 
