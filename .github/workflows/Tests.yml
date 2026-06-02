@@ -1,4 +1,4 @@
-name: "Downgrade"
+name: "Tests"
 
 on:
   pull_request:
@@ -17,11 +17,15 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
 
 jobs:
-  downgrade:
-    if: false
-    name: "Downgrade"
-    uses: "SciML/.github/.github/workflows/downgrade.yml@v1"
+  tests:
+    name: "Tests"
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - "1"
+          - "lts"
+    uses: "SciML/.github/.github/workflows/tests.yml@v1"
     with:
-      julia-version: "1.10"
-      skip: "Pkg,TOML"
+      julia-version: "${{ matrix.version }}"
     secrets: "inherit"
