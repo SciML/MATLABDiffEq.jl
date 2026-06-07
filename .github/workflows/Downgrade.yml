@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   downgrade:
-    if: false
+    # Runs strict (allow_reresolve=false); expected RED until MATLAB runtime is available on CI runners.
     name: "Downgrade"
     uses: "SciML/.github/.github/workflows/downgrade.yml@v1"
     with:
