@@ -1,17 +1,11 @@
-# JET.jl static analysis tests for MATLABDiffEq
-# These tests verify type stability and catch potential runtime errors
-# They can run without MATLAB installed since they only test Julia code
+# Static type-stability tests for MATLABDiffEq
+# These tests verify type stability and catch potential runtime errors.
+# They run without MATLAB installed since they only test Julia code.
+# JET/Aqua static analysis of the package itself lives in the QA group
+# (test/qa/qa.jl); this file holds the functional type-stability checks.
 
 using Test
 using DiffEqBase
-
-# JET is an optional test dependency
-const HAS_JET = try
-    @eval using JET
-    true
-catch
-    false
-end
 
 # Import buildDEStats for testing - we need to access it from the module
 # Since MATLABDiffEq requires MATLAB, we'll test the function pattern directly
@@ -65,14 +59,6 @@ end
         result_partial = buildDEStats_test(partial_stats)
         @test result_partial.nf == 42
         @test result_partial.nreject == 0
-
-        # JET analysis - verify no obvious errors in the function
-        if HAS_JET
-            rep = JET.report_call(buildDEStats_test, (Dict{String, Any},))
-            # We expect some reports due to Dict{String, Any} type uncertainty
-            # but the function should still be valid
-            @test true  # Function analyzed successfully
-        end
     end
 
     @testset "Algorithm struct definitions" begin
@@ -126,16 +112,6 @@ end
         @test _is_matlab_compatible_eltype_test(BigFloat) === false
         @test _is_matlab_compatible_eltype_test(BigInt) === false
         @test _is_matlab_compatible_eltype_test(Float32) === false
-
-        # JET @test_opt analysis for type stability
-        if HAS_JET
-            @testset "JET @test_opt type stability" begin
-                # Test type stability of _is_matlab_compatible_eltype
-                @test_opt _is_matlab_compatible_eltype_test(Float64)
-                @test_opt _is_matlab_compatible_eltype_test(Int64)
-                @test_opt _is_matlab_compatible_eltype_test(BigFloat)
-            end
-        end
     end
 
     @testset "Return type inference" begin

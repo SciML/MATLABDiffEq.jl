@@ -1,0 +1,13 @@
+# Root MATLABDiffEq.jl test-group matrix, consumed by the reusable
+# grouped-tests.yml@v1 caller (.github/workflows/Tests.yml) via
+# scripts/compute_affected_sublibraries.jl --root-matrix. Each group runs on
+# every Julia version it lists; runtests.jl dispatches on GROUP.
+#
+# Core reproduces the old Tests.yml matrix (the whole suite on "lts" and "1").
+# QA is newly split out: Aqua + JET run in the isolated test/qa environment.
+
+[Core]
+versions = ["lts", "1"]
+
+[QA]
+versions = ["lts", "1"]
