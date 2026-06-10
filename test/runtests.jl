@@ -1,5 +1,6 @@
 using Pkg
 using Test
+using DiffEqBase, MATLABDiffEq, ParameterizedFunctions
 
 const GROUP = get(ENV, "GROUP", "Core")
 
@@ -13,8 +14,6 @@ function activate_qa_env()
 end
 
 if GROUP == "Core" || GROUP == "All"
-    using DiffEqBase, MATLABDiffEq, ParameterizedFunctions
-
     # Interface tests - these test type validation without needing MATLAB runtime
     include("interface_tests.jl")
 
