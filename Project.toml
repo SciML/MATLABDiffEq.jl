@@ -11,17 +11,18 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [compat]
 DiffEqBase = "6.122, 7"
-JET = "0.9, 0.10, 0.11"
 MATLAB = "0.8, 0.9, 0.10"
 ModelingToolkit = "8, 9, 10, 11"
+ParameterizedFunctions = "5"
 PrecompileTools = "1"
 Reexport = "0.2, 1.0"
-julia = "1.6"
+Test = "<0.0.1, 1"
+julia = "1.10"
 
 [extras]
-JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
 ParameterizedFunctions = "65888b18-ceab-5e60-b2b9-181511a3b968"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "ParameterizedFunctions", "JET"]
+test = ["Test", "ParameterizedFunctions", "Pkg"]
