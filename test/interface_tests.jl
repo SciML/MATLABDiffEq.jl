@@ -1,6 +1,7 @@
 # Interface compatibility tests for MATLABDiffEq.jl
 # These tests verify type checking and interface compliance
 
+using MATLABDiffEq
 using Test
 
 @testset "Interface Compatibility" begin
