@@ -1,11 +1,12 @@
-using MATLABDiffEq, Aqua, JET
-using Test
+using SafeTestsets
 
-@testset "Aqua" begin
+@safetestset "Aqua" begin
+    using MATLABDiffEq, Aqua
     Aqua.test_all(MATLABDiffEq)
 end
 
-@testset "JET static analysis" begin
+@safetestset "JET static analysis" begin
+    using MATLABDiffEq, JET, Test
     rep = JET.report_package(MATLABDiffEq; target_modules = (MATLABDiffEq,))
     @test length(JET.get_reports(rep)) == 0
 end

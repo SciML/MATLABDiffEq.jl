@@ -16,13 +16,16 @@ ModelingToolkit = "8, 9, 10, 11"
 ParameterizedFunctions = "5"
 PrecompileTools = "1"
 Reexport = "0.2, 1.0"
+SafeTestsets = "0.1, 1"
+SciMLTesting = "1"
 Test = "<0.0.1, 1"
 julia = "1.10"
 
 [extras]
 ParameterizedFunctions = "65888b18-ceab-5e60-b2b9-181511a3b968"
-Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
+SciMLTesting = "09d9d899-5365-40a9-917a-5f67fddea283"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "ParameterizedFunctions", "Pkg"]
+test = ["Test", "ParameterizedFunctions", "SafeTestsets", "SciMLTesting"]
