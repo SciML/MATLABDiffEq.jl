@@ -1,12 +1,29 @@
-using SafeTestsets
+using SciMLTesting, MATLABDiffEq, JET, Test
 
-@safetestset "Aqua" begin
-    using MATLABDiffEq, Aqua
-    Aqua.test_all(MATLABDiffEq)
-end
-
-@safetestset "JET static analysis" begin
-    using MATLABDiffEq, JET, Test
-    rep = JET.report_package(MATLABDiffEq; target_modules = (MATLABDiffEq,))
-    @test length(JET.get_reports(rep)) == 0
-end
+run_qa(
+    MATLABDiffEq;
+    explicit_imports = true,
+    ei_kwargs = (;
+        # SciMLBase-owned names accessed through their canonical re-exporter
+        # DiffEqBase, and the Symbolics-owned MATLABTarget accessed through
+        # ModelingToolkit; non-public in the re-exporter, so ignore until they
+        # are declared public upstream.
+        all_qualified_accesses_via_owners = (;
+            ignore = (
+                :AbstractODEAlgorithm, :AbstractODEProblem, :__solve,
+                :build_solution, :MATLABTarget,
+            ),
+        ),
+        all_qualified_accesses_are_public = (;
+            ignore = (
+                :AbstractODEAlgorithm, :AbstractODEProblem, :__solve,
+                :build_solution, :Stats, :MATLABTarget,
+            ),
+        ),
+    ),
+    # no_implicit_imports: the module deliberately `@reexport using DiffEqBase`
+    # and `using MATLAB`/`ModelingToolkit`/`PrecompileTools`; making every name
+    # explicit is a large, risky refactor against heavy deps. Tracked in
+    # https://github.com/SciML/MATLABDiffEq.jl/issues/85
+    ei_broken = (:no_implicit_imports,),
+)
