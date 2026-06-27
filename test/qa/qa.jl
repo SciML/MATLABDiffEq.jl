@@ -4,20 +4,20 @@ run_qa(
     MATLABDiffEq;
     explicit_imports = true,
     ei_kwargs = (;
-        # SciMLBase-owned names accessed through their canonical re-exporter
-        # DiffEqBase, and the Symbolics-owned MATLABTarget accessed through
-        # ModelingToolkit; non-public in the re-exporter, so ignore until they
-        # are declared public upstream.
+        # DiffEqBase.__solve (SciMLBase-owned) is the documented solver extension
+        # point re-exported by DiffEqBase, and the Symbolics-owned MATLABTarget is
+        # reached through ModelingToolkit; both are accessed through a re-exporter
+        # that is not the owner.
         all_qualified_accesses_via_owners = (;
             ignore = (
-                :AbstractODEAlgorithm, :AbstractODEProblem, :__solve,
-                :build_solution, :MATLABTarget,
+                :__solve, :MATLABTarget,
             ),
         ),
+        # Still non-public upstream: __solve (SciMLBase) and MATLABTarget
+        # (Symbolics). Drop once they are declared public.
         all_qualified_accesses_are_public = (;
             ignore = (
-                :AbstractODEAlgorithm, :AbstractODEProblem, :__solve,
-                :build_solution, :Stats, :MATLABTarget,
+                :__solve, :MATLABTarget,
             ),
         ),
     ),
