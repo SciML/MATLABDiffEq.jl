@@ -4,6 +4,7 @@ using Reexport
 @reexport using DiffEqBase
 using MATLAB, ModelingToolkit
 using PrecompileTools
+import SciMLBase
 
 # MATLAB only supports Float64 arrays. Check if a type is MATLAB-compatible.
 # Note: We specifically accept standard Julia integer types that MATLAB can convert,
@@ -52,7 +53,7 @@ else
     const mtk_states = ModelingToolkit.states
 end
 
-abstract type MATLABAlgorithm <: DiffEqBase.AbstractODEAlgorithm end
+abstract type MATLABAlgorithm <: SciMLBase.AbstractODEAlgorithm end
 struct ode23 <: MATLABAlgorithm end
 struct ode45 <: MATLABAlgorithm end
 struct ode113 <: MATLABAlgorithm end
@@ -63,7 +64,7 @@ struct ode15s <: MATLABAlgorithm end
 struct ode15i <: MATLABAlgorithm end
 
 function DiffEqBase.__solve(
-        prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
+        prob::SciMLBase.AbstractODEProblem{uType, tupType, isinplace},
         alg::AlgType,
         timeseries = [],
         ts = [],
@@ -151,7 +152,7 @@ function DiffEqBase.__solve(
 
     stats = buildDEStats(solstats)
 
-    return DiffEqBase.build_solution(
+    return SciMLBase.build_solution(
         prob,
         alg,
         ts,
@@ -162,15 +163,15 @@ function DiffEqBase.__solve(
 end
 
 """
-    buildDEStats(solverstats::Dict{String, <:Any}) -> DiffEqBase.Stats
+    buildDEStats(solverstats::Dict{String, <:Any}) -> SciMLBase.DEStats
 
-Convert MATLAB ODE solver statistics dictionary to DiffEqBase.Stats.
+Convert MATLAB ODE solver statistics dictionary to SciMLBase.DEStats.
 
 The function extracts statistics from the MATLAB solver output and maps them
-to the corresponding fields in DiffEqBase.Stats. Missing keys default to 0.
+to the corresponding fields in SciMLBase.DEStats. Missing keys default to 0.
 """
-function buildDEStats(solverstats::Dict{String, <:Any})::DiffEqBase.Stats
-    destats = DiffEqBase.Stats(0)
+function buildDEStats(solverstats::Dict{String, <:Any})::SciMLBase.DEStats
+    destats = SciMLBase.DEStats(0)
     destats.nf = Int(get(solverstats, "nfevals", 0))
     destats.nreject = Int(get(solverstats, "nfailed", 0))
     destats.naccept = Int(get(solverstats, "nsteps", 0))
