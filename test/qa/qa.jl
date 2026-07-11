@@ -3,6 +3,7 @@ using SciMLTesting, MATLABDiffEq, JET, Test
 run_qa(
     MATLABDiffEq;
     explicit_imports = true,
+    api_docs_kwargs = (; rendered = true),
     ei_kwargs = (;
         # DiffEqBase.__solve (SciMLBase-owned) is the documented solver extension
         # point re-exported by DiffEqBase, and the Symbolics-owned MATLABTarget is
