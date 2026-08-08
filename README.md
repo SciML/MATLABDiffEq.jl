@@ -37,9 +37,8 @@ that MATLAB can handle:
 If you need arbitrary precision or GPU computing, use the native Julia solvers
 from [DifferentialEquations.jl](https://docs.sciml.ai/DiffEqDocs/stable/) instead.
 
-Note that the algorithms are defined to have the same name as the MATLAB algorithms,
-but are not exported. Thus to use `ode45`, you would specify the algorithm as
-`MATLABDiffEq.ode45()`.
+The algorithms have the same names as their MATLAB counterparts. They are public but not
+exported, so use qualified names such as `MATLABDiffEq.ode45()`.
 
 ### Available Solvers
 
@@ -60,7 +59,7 @@ but are not exported. Thus to use `ode45`, you would specify the algorithm as
 ## Example
 
 ```julia
-using MATLABDiffEq, ParameterizedFunctions
+using MATLAB, MATLABDiffEq, ParameterizedFunctions, SciMLBase
 
 f = @ode_def LotkaVolterra begin
     dx = 1.5x - x*y
@@ -91,14 +90,14 @@ is done. Thus you can simply call the same ODE function and time it
 directly. This is done by:
 
 ```julia
-@time MATLABDiffEq.eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
+@time MATLAB.eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
 ```
 
 To be even more pedantic, you can play around in the actual MATLAB
 session by using
 
 ```
-MATLABDiffEq.show_msession()
+MATLAB.show_msession()
 ```
 
 ## Overhead Amount
@@ -106,7 +105,7 @@ MATLABDiffEq.show_msession()
 Generally, for long enough problems the overhead is minimal. Example:
 
 ```julia
-using DiffEqBase, ParameterizedFunctions, MATLABDiffEq
+using MATLAB, MATLABDiffEq, ParameterizedFunctions, SciMLBase
 f = @ode_def_bare RigidBodyBench begin
     dy1 = -2*y2*y3
     dy2 = 1.25*y1*y3
@@ -132,16 +131,16 @@ julia> @time sol = solve(prob, alg);
 julia> @time sol = solve(prob, alg);
   0.065460 seconds (38.84 k allocations: 1.556 MB)
 
-julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
+julia> @time MATLAB.eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
   0.058249 seconds (11 allocations: 528 bytes)
 
-julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
+julia> @time MATLAB.eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
   0.060367 seconds (11 allocations: 528 bytes)
 
-julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
+julia> @time MATLAB.eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
   0.060171 seconds (11 allocations: 528 bytes)
 
-julia> @time MATLABDiffEq.eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
+julia> @time MATLAB.eval_string("[t,u] = $(algstr)(diffeqf,tspan,u0,options);")
   0.058928 seconds (11 allocations: 528 bytes)
 ```
 

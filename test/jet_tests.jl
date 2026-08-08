@@ -5,7 +5,7 @@
 # (test/qa/qa.jl); this file holds the functional type-stability checks.
 
 using Test
-using DiffEqBase
+using SciMLBase
 
 # Import buildDEStats for testing - we need to access it from the module
 # Since MATLABDiffEq requires MATLAB, we'll test the function pattern directly
@@ -16,8 +16,8 @@ using DiffEqBase
         # This verifies the function returns the correct type
 
         # Create a mock buildDEStats that matches the module implementation
-        function buildDEStats_test(solverstats::Dict{String, <:Any})::DiffEqBase.Stats
-            destats = DiffEqBase.Stats(0)
+        function buildDEStats_test(solverstats::Dict{String, <:Any})::SciMLBase.DEStats
+            destats = SciMLBase.DEStats(0)
             destats.nf = Int(get(solverstats, "nfevals", 0))
             destats.nreject = Int(get(solverstats, "nfailed", 0))
             destats.naccept = Int(get(solverstats, "nsteps", 0))
@@ -38,7 +38,7 @@ using DiffEqBase
         )
 
         result = buildDEStats_test(full_stats)
-        @test result isa DiffEqBase.Stats
+        @test result isa SciMLBase.DEStats
         @test result.nf == 100
         @test result.nreject == 5
         @test result.naccept == 95
@@ -49,7 +49,7 @@ using DiffEqBase
         # Test with empty stats (all defaults)
         empty_stats = Dict{String, Any}()
         result_empty = buildDEStats_test(empty_stats)
-        @test result_empty isa DiffEqBase.Stats
+        @test result_empty isa SciMLBase.DEStats
         @test result_empty.nf == 0
         @test result_empty.nreject == 0
         @test result_empty.naccept == 0
@@ -66,7 +66,7 @@ using DiffEqBase
         # These don't require MATLAB
 
         # Define the algorithm types as they are in the module
-        abstract type MATLABAlgorithm <: DiffEqBase.AbstractODEAlgorithm end
+        abstract type MATLABAlgorithm <: SciMLBase.AbstractODEAlgorithm end
         struct ode23_test <: MATLABAlgorithm end
         struct ode45_test <: MATLABAlgorithm end
         struct ode113_test <: MATLABAlgorithm end
@@ -78,9 +78,9 @@ using DiffEqBase
 
         # Verify type hierarchy
         @test ode45_test <: MATLABAlgorithm
-        @test ode45_test <: DiffEqBase.AbstractODEAlgorithm
+        @test ode45_test <: SciMLBase.AbstractODEAlgorithm
         @test ode23_test() isa MATLABAlgorithm
-        @test ode113_test() isa DiffEqBase.AbstractODEAlgorithm
+        @test ode113_test() isa SciMLBase.AbstractODEAlgorithm
 
         # Verify all algorithm types are concrete
         @test isconcretetype(ode23_test)
@@ -116,8 +116,8 @@ using DiffEqBase
 
     @testset "Return type inference" begin
         # Test that return types can be inferred correctly
-        function buildDEStats_test2(solverstats::Dict{String, <:Any})::DiffEqBase.Stats
-            destats = DiffEqBase.Stats(0)
+        function buildDEStats_test2(solverstats::Dict{String, <:Any})::SciMLBase.DEStats
+            destats = SciMLBase.DEStats(0)
             destats.nf = Int(get(solverstats, "nfevals", 0))
             destats.nreject = Int(get(solverstats, "nfailed", 0))
             destats.naccept = Int(get(solverstats, "nsteps", 0))
@@ -130,6 +130,6 @@ using DiffEqBase
         # Verify return type is inferred as concrete
         return_types = Base.return_types(buildDEStats_test2, (Dict{String, Any},))
         @test length(return_types) == 1
-        @test return_types[1] == DiffEqBase.Stats
+        @test return_types[1] == SciMLBase.DEStats
     end
 end

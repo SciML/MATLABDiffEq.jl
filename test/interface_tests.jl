@@ -2,6 +2,7 @@
 # These tests verify type checking and interface compliance
 
 using MATLABDiffEq
+using SciMLBase
 using Test
 
 @testset "Interface Compatibility" begin
@@ -105,5 +106,34 @@ using Test
         @test MATLABDiffEq.ode23tb() isa MATLABDiffEq.MATLABAlgorithm
         @test MATLABDiffEq.ode15s() isa MATLABDiffEq.MATLABAlgorithm
         @test MATLABDiffEq.ode15i() isa MATLABDiffEq.MATLABAlgorithm
+    end
+
+    @testset "Public algorithm interface" begin
+        algorithm_types = (
+            MATLABDiffEq.ode23,
+            MATLABDiffEq.ode45,
+            MATLABDiffEq.ode113,
+            MATLABDiffEq.ode23s,
+            MATLABDiffEq.ode23t,
+            MATLABDiffEq.ode23tb,
+            MATLABDiffEq.ode15s,
+            MATLABDiffEq.ode15i,
+        )
+
+        @test all(T -> T <: MATLABDiffEq.MATLABAlgorithm, algorithm_types)
+        @test all(
+            T -> Docs.doc(Docs.Binding(MATLABDiffEq, nameof(T))) !== nothing,
+            algorithm_types,
+        )
+        @test Docs.doc(Docs.Binding(MATLABDiffEq, :MATLABAlgorithm)) !== nothing
+        if isdefined(Base, :ispublic)
+            @test Base.ispublic(MATLABDiffEq, :MATLABAlgorithm)
+            @test all(T -> Base.ispublic(MATLABDiffEq, nameof(T)), algorithm_types)
+        end
+
+        @test hasmethod(
+            SciMLBase.__solve,
+            Tuple{SciMLBase.AbstractODEProblem, MATLABDiffEq.ode45},
+        )
     end
 end

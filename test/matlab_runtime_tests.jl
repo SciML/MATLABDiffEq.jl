@@ -4,7 +4,7 @@
 # MSession is impossible, so the engine-dependent smoke tests are skipped with a
 # notice rather than failing. Where a working MATLAB engine is present the full
 # solve path runs and must succeed.
-using DiffEqBase, MATLABDiffEq, ParameterizedFunctions, MATLAB, Test
+using MATLAB, MATLABDiffEq, ParameterizedFunctions, SciMLBase, Test
 
 # `libmx_size == 0` means MATLAB.jl was built without a MATLAB installation
 # (the build-time CI fallback), so the engine libraries were never loaded.
@@ -31,8 +31,8 @@ end
         p = [1.5, 1, 3, 1]
         tspan = (0.0, 10.0)
         u0 = [1.0, 1.0]
-        prob = ODEProblem(f, u0, tspan, p)
-        sol = solve(prob, MATLABDiffEq.ode45())
+        prob = SciMLBase.ODEProblem(f, u0, tspan, p)
+        sol = SciMLBase.solve(prob, MATLABDiffEq.ode45())
         @test length(sol.t) > 0
 
         function lorenz(du, u, p, t)
@@ -42,8 +42,8 @@ end
         end
         u0 = [1.0; 0.0; 0.0]
         tspan = (0.0, 100.0)
-        prob = ODEProblem(lorenz, u0, tspan)
-        sol = solve(prob, MATLABDiffEq.ode45())
+        prob = SciMLBase.ODEProblem(lorenz, u0, tspan)
+        sol = SciMLBase.solve(prob, MATLABDiffEq.ode45())
         @test length(sol.t) > 0
 
         algs = [
@@ -57,7 +57,7 @@ end
         ]
 
         for alg in algs
-            sol = solve(prob, alg())
+            sol = SciMLBase.solve(prob, alg())
             @test length(sol.t) > 0
         end
     end

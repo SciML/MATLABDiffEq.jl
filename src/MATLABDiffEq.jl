@@ -1,10 +1,14 @@
 module MATLABDiffEq
 
-using Reexport
-@reexport using DiffEqBase
-using MATLAB, ModelingToolkit
-using PrecompileTools
-import SciMLBase
+using MATLAB: eval_string, get_default_msession, get_mvariable, get_variable, jarray,
+    jvector, put_variable
+using ModelingToolkitBase: equations, independent_variables, modelingtoolkitize, parameters,
+    unknowns
+using PrecompileTools: @compile_workload, @setup_workload
+using SciMLBase: AbstractODEAlgorithm, AbstractODEProblem, DEStats, build_solution
+import SciMLBase: __solve
+using SciMLPublic: @public
+using Symbolics: MATLABTarget, build_function
 
 # MATLAB only supports Float64 arrays. Check if a type is MATLAB-compatible.
 # Note: We specifically accept standard Julia integer types that MATLAB can convert,
@@ -46,25 +50,165 @@ function _check_matlab_compatible(u0, tspan)::Nothing
     return nothing
 end
 
-# Handle ModelingToolkit API changes: states -> unknowns
-if isdefined(ModelingToolkit, :unknowns)
-    const mtk_states = ModelingToolkit.unknowns
-else
-    const mtk_states = ModelingToolkit.states
-end
+"""
+    MATLABAlgorithm
 
-abstract type MATLABAlgorithm <: SciMLBase.AbstractODEAlgorithm end
+Abstract supertype for the ODE algorithm markers provided by MATLABDiffEq.
+
+Concrete subtypes select the MATLAB routine used by `SciMLBase.solve`. Downstream code may
+dispatch on `MATLABAlgorithm` to identify MATLAB-backed ODE algorithms. External subtyping
+is not supported: the bridge derives the MATLAB routine name from the concrete Julia type,
+so MATLABDiffEq must own and test every subtype.
+
+# Examples
+
+```jldoctest
+julia> MATLABDiffEq.ode45() isa MATLABDiffEq.MATLABAlgorithm
+true
+```
+"""
+abstract type MATLABAlgorithm <: AbstractODEAlgorithm end
+
+"""
+    ode23()
+
+Select MATLAB's low-order explicit Runge-Kutta ODE solver.
+
+Pass the resulting marker to `SciMLBase.solve`; configure tolerances and saved output with
+the usual SciML solve keywords.
+
+# Examples
+
+```jldoctest
+julia> MATLABDiffEq.ode23() isa MATLABDiffEq.MATLABAlgorithm
+true
+```
+"""
 struct ode23 <: MATLABAlgorithm end
+
+"""
+    ode45()
+
+Select MATLAB's variable-step explicit Runge-Kutta `(4, 5)` ODE solver.
+
+Pass the resulting marker to `SciMLBase.solve`; configure tolerances and saved output with
+the usual SciML solve keywords.
+
+# Examples
+
+```jldoctest
+julia> MATLABDiffEq.ode45() isa MATLABDiffEq.MATLABAlgorithm
+true
+```
+"""
 struct ode45 <: MATLABAlgorithm end
+
+"""
+    ode113()
+
+Select MATLAB's variable-order Adams-Bashforth-Moulton ODE solver.
+
+Pass the resulting marker to `SciMLBase.solve`; configure tolerances and saved output with
+the usual SciML solve keywords.
+
+# Examples
+
+```jldoctest
+julia> MATLABDiffEq.ode113() isa MATLABDiffEq.MATLABAlgorithm
+true
+```
+"""
 struct ode113 <: MATLABAlgorithm end
+
+"""
+    ode23s()
+
+Select MATLAB's low-order Rosenbrock solver for stiff ODEs.
+
+Pass the resulting marker to `SciMLBase.solve`; configure tolerances and saved output with
+the usual SciML solve keywords.
+
+# Examples
+
+```jldoctest
+julia> MATLABDiffEq.ode23s() isa MATLABDiffEq.MATLABAlgorithm
+true
+```
+"""
 struct ode23s <: MATLABAlgorithm end
+
+"""
+    ode23t()
+
+Select MATLAB's trapezoidal-rule solver for moderately stiff ODEs.
+
+Pass the resulting marker to `SciMLBase.solve`; configure tolerances and saved output with
+the usual SciML solve keywords.
+
+# Examples
+
+```jldoctest
+julia> MATLABDiffEq.ode23t() isa MATLABDiffEq.MATLABAlgorithm
+true
+```
+"""
 struct ode23t <: MATLABAlgorithm end
+
+"""
+    ode23tb()
+
+Select MATLAB's TR-BDF2 solver for stiff ODEs.
+
+Pass the resulting marker to `SciMLBase.solve`; configure tolerances and saved output with
+the usual SciML solve keywords.
+
+# Examples
+
+```jldoctest
+julia> MATLABDiffEq.ode23tb() isa MATLABDiffEq.MATLABAlgorithm
+true
+```
+"""
 struct ode23tb <: MATLABAlgorithm end
+
+"""
+    ode15s()
+
+Select MATLAB's variable-order BDF/NDF solver for stiff ODEs.
+
+Pass the resulting marker to `SciMLBase.solve`; configure tolerances and saved output with
+the usual SciML solve keywords.
+
+# Examples
+
+```jldoctest
+julia> MATLABDiffEq.ode15s() isa MATLABDiffEq.MATLABAlgorithm
+true
+```
+"""
 struct ode15s <: MATLABAlgorithm end
+
+"""
+    ode15i()
+
+Select MATLAB's solver for fully implicit differential equations.
+
+Pass the resulting marker to `SciMLBase.solve`; configure tolerances and saved output with
+the usual SciML solve keywords.
+
+# Examples
+
+```jldoctest
+julia> MATLABDiffEq.ode15i() isa MATLABDiffEq.MATLABAlgorithm
+true
+```
+"""
 struct ode15i <: MATLABAlgorithm end
 
-function DiffEqBase.__solve(
-        prob::SciMLBase.AbstractODEProblem{uType, tupType, isinplace},
+@public MATLABAlgorithm, ode23, ode45, ode113, ode23s, ode23t, ode23tb, ode15s, ode15i
+
+function __solve(
+        prob::AbstractODEProblem{uType, tupType, isinplace},
         alg::AlgType,
         timeseries = [],
         ts = [],
@@ -107,12 +251,12 @@ function DiffEqBase.__solve(
 
     sys = modelingtoolkitize(prob)
 
-    matstr = ModelingToolkit.build_function(
+    matstr = build_function(
         map(x -> x.rhs, equations(sys)),
-        mtk_states(sys),
+        unknowns(sys),
         parameters(sys),
         independent_variables(sys)[1],
-        target = ModelingToolkit.MATLABTarget()
+        target = MATLABTarget()
     )
 
     # Send the variables
@@ -152,7 +296,7 @@ function DiffEqBase.__solve(
 
     stats = buildDEStats(solstats)
 
-    return SciMLBase.build_solution(
+    return build_solution(
         prob,
         alg,
         ts,
@@ -163,15 +307,24 @@ function DiffEqBase.__solve(
 end
 
 """
-    buildDEStats(solverstats::Dict{String, <:Any}) -> SciMLBase.DEStats
+    buildDEStats(solverstats::Dict{String, <:Any}) -> DEStats
 
 Convert MATLAB ODE solver statistics dictionary to SciMLBase.DEStats.
 
-The function extracts statistics from the MATLAB solver output and maps them
-to the corresponding fields in SciMLBase.DEStats. Missing keys default to 0.
+This internal bridge helper maps the counters returned by a MATLAB ODE solver to the
+corresponding fields in `DEStats`. Missing keys default to zero.
+
+# Arguments
+
+- `solverstats`: Solver statistics keyed by the MATLAB field names `"nfevals"`,
+  `"nfailed"`, `"nsteps"`, `"nsolves"`, `"npds"`, and `"ndecomps"`.
+
+# Returns
+
+- A `DEStats` value populated from the available MATLAB counters.
 """
-function buildDEStats(solverstats::Dict{String, <:Any})::SciMLBase.DEStats
-    destats = SciMLBase.DEStats(0)
+function buildDEStats(solverstats::Dict{String, <:Any})::DEStats
+    destats = DEStats(0)
     destats.nf = Int(get(solverstats, "nfevals", 0))
     destats.nreject = Int(get(solverstats, "nfailed", 0))
     destats.naccept = Int(get(solverstats, "nsteps", 0))
