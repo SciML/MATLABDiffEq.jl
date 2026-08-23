@@ -10,6 +10,22 @@ import SciMLBase: __solve
 using SciMLPublic: @public
 using Symbolics: MATLABTarget, build_function
 
+# The SciML common interface that MATLABDiffEq reexports (see the `export` block below),
+# so that `using MATLABDiffEq` on its own is enough to build an ODE problem, solve it,
+# and inspect the result -- the workflow the README and docs/src/index.md document. Every
+# name stays owned and documented upstream.
+using SciMLBase: EnsembleAnalysis, EnsembleDistributed, EnsembleProblem, EnsembleSerial,
+    EnsembleSolution, EnsembleSplitThreads, EnsembleSummary, EnsembleThreads,
+    NullParameters, ODEFunction, ODEProblem, ODESolution, ReturnCode, remake, solve,
+    successful_retcode
+
+# Reexported SciML common interface; approved via `reexports_allow` in test/qa/qa.jl.
+# `DEStats` is imported above.
+export DEStats, EnsembleAnalysis, EnsembleDistributed, EnsembleProblem, EnsembleSerial,
+    EnsembleSolution, EnsembleSplitThreads, EnsembleSummary, EnsembleThreads,
+    NullParameters, ODEFunction, ODEProblem, ODESolution, ReturnCode, remake, solve,
+    successful_retcode
+
 # MATLAB only supports Float64 arrays. Check if a type is MATLAB-compatible.
 # Note: We specifically accept standard Julia integer types that MATLAB can convert,
 # but NOT BigInt since MATLAB doesn't support arbitrary precision integers.

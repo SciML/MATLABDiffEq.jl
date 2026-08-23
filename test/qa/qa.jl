@@ -1,3 +1,25 @@
-using MATLABDiffEq, SciMLTesting
+using MATLABDiffEq, SciMLTesting, Test
 
-run_qa(MATLABDiffEq)
+# The SciML common interface MATLABDiffEq deliberately reexports so that
+# `using MATLABDiffEq` is enough to build an ODE problem, solve it, and inspect the
+# result. Owned and documented upstream; kept in sync with the reexport `export` block
+# in src/MATLABDiffEq.jl and the API page in docs/src/api.md.
+const REEXPORTS = (
+    :DEStats, :EnsembleAnalysis, :EnsembleDistributed, :EnsembleProblem, :EnsembleSerial,
+    :EnsembleSolution, :EnsembleSplitThreads, :EnsembleSummary, :EnsembleThreads,
+    :NullParameters, :ODEFunction, :ODEProblem, :ODESolution, :ReturnCode, :remake,
+    :solve, :successful_retcode,
+)
+
+run_qa(MATLABDiffEq; reexports_allow = REEXPORTS)
+
+@testset "Reexport surface" begin
+    # Every approved reexport must actually be reachable from `using MATLABDiffEq`, so
+    # the allow-list cannot drift into approving names the package no longer provides.
+    # `isdefined(@__MODULE__, ...)` tests the property directly: this file's
+    # `using MATLABDiffEq` is what has to bring the name into scope.
+    @testset "$name" for name in REEXPORTS
+        @test name in names(MATLABDiffEq)
+        @test isdefined(@__MODULE__, name)
+    end
+end

@@ -10,11 +10,12 @@ models; native Julia solvers are the recommended choice for production workloads
 
 ## Basic Usage
 
-Load `SciMLBase` for the problem and solve interfaces, then pass a qualified MATLABDiffEq
+`using MATLABDiffEq` brings the SciML common interface -- `ODEProblem`, `solve` and the
+solution types -- into scope along with the algorithms, so pass a qualified MATLABDiffEq
 algorithm to `solve`:
 
 ```julia
-using MATLABDiffEq, SciMLBase
+using MATLABDiffEq
 
 function lorenz!(du, u, p, t)
     du[1] = 10.0 * (u[2] - u[1])
@@ -33,7 +34,9 @@ supported.
 ## Public API
 
 Algorithm types are public but not exported, which avoids collisions with similarly named
-algorithms from other solver packages. Use them through the `MATLABDiffEq` namespace.
+algorithms from other solver packages. Use them through the `MATLABDiffEq` namespace. The
+SciML common interface that `using MATLABDiffEq` reexports alongside them is listed on the
+[API page](api.md).
 
 ```@docs
 MATLABAlgorithm

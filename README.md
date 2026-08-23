@@ -59,7 +59,7 @@ exported, so use qualified names such as `MATLABDiffEq.ode45()`.
 ## Example
 
 ```julia
-using MATLAB, MATLABDiffEq, ParameterizedFunctions, SciMLBase
+using MATLABDiffEq, ParameterizedFunctions
 
 f = @ode_def LotkaVolterra begin
     dx = 1.5x - x*y
@@ -105,7 +105,7 @@ MATLAB.show_msession()
 Generally, for long enough problems the overhead is minimal. Example:
 
 ```julia
-using MATLAB, MATLABDiffEq, ParameterizedFunctions, SciMLBase
+using MATLABDiffEq, ParameterizedFunctions
 f = @ode_def_bare RigidBodyBench begin
     dy1 = -2*y2*y3
     dy2 = 1.25*y1*y3
